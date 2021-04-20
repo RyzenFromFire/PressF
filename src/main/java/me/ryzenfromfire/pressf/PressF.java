@@ -29,13 +29,14 @@ public final class PressF extends JavaPlugin {
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
         if (command.getName().equals("pressf")) {
             Player player = (Player) sender;
-            Player target = Bukkit.getPlayer(args[0]);
 
-            if (target == null) {
-                //TODO: Replace "player" with a UUID of the player who sent the last message before the sender.
-                target = player;
-            }
+            //TODO: Replace "player" with a UUID of the player who sent the last message before the sender.
+            Player target = args.length != 0 ? Bukkit.getPlayer(args[0]) : player;
+
+            getLogger().info("Pressed F. target = " + target);
+
             //if player is listed, set count to their current fCount, if not, initialize with 0
+            assert target != null;
             int count = fCount.getOrDefault(target.getUniqueId(), 0);
 
             //increment target's fCount
