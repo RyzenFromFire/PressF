@@ -12,7 +12,7 @@ import java.util.UUID;
 
 public final class PressF extends JavaPlugin {
 
-    HashMap<UUID, Integer> fCount = new HashMap<UUID, Integer>();
+    HashMap<UUID, Integer> fCount = new HashMap<>();
 
     @Override
     public void onEnable() {
@@ -40,11 +40,16 @@ public final class PressF extends JavaPlugin {
 
             //increment target's fCount
             fCount.put(target.getUniqueId(), count + 1);
+
+            player.sendMessage("[PressF] Pressed F to pay respects to " + target.getName() + ".");
+            return true;
         }
 
         if (command.getName().equals("viewf")) {
             Player player = (Player) sender;
-            player.sendMessage("[PressF] You have " + fCount.get(player.getUniqueId()) + "F's.");
+            player.sendMessage("[PressF] You have " + fCount.get(player.getUniqueId()) + " F's.");
+
+            return true;
         }
 
         return false;
