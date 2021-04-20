@@ -4,3 +4,11 @@ main: me.ryzenfromfire.pressf.PressF
 api-version: 1.16
 authors: [ RyzenFromFire ]
 description: PressF is a Minecraft plugin that allows users to press F to pay respects.
+commands:
+  pressf:
+    description: Press F to pay respects.
+    usage: /pressf <target>
+    aliases: pf
+  viewf:
+    description: See how many Fs you have been given.
+    usage: /viewf
