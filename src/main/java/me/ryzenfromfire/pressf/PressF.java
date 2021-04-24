@@ -9,22 +9,23 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
-
-
 import java.util.HashMap;
 import java.util.UUID;
 
 public final class PressF extends JavaPlugin {
 
+    private ConfigLoader configLoader;
+
     HashMap<UUID, Integer> fCount = new HashMap<>();
-    Component prefix = MiniMessage.get().parse("<#2e2d2b>[<reset>PressF<#2e2d2b>]<reset>");
-    Component fKey = MiniMessage.get().parse("<#2e2d2b>[<#edebe6><bold>F</bold><#2e2d2b>]<reset>");
+    Component prefix = configLoader.getPrefix();
+    Component fKey = configLoader.getFKey();
 
     @Override
     public void onEnable() {
         // Plugin startup logic
         getLogger().info("Pressing the start button (not F).");
         this.getServer().getPluginManager().registerEvents(new Events(), this);
+        this.configLoader = new ConfigLoader(this);
     }
 
     @Override

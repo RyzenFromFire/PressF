@@ -1,0 +1,7 @@
+# PressF by RyzenFromFire
+
+# Customize the prefix shown with commands in chat
+prefix: "<#2e2d2b>[<reset>PressF<#2e2d2b>]<reset>"
+
+# Customize the look of the [F] key
+fkey: "<#2e2d2b>[<#edebe6><bold>F</bold><#2e2d2b>]<reset>"
