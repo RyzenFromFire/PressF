@@ -9,6 +9,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
 import java.util.UUID;
+import java.util.function.Supplier;
 
 public final class PressF extends JavaPlugin {
 
@@ -18,6 +19,7 @@ public final class PressF extends JavaPlugin {
     public void onEnable() {
         // Plugin startup logic
         getLogger().info("Pressing the start button (not F).");
+        this.getServer().getPluginManager().registerEvents(new Events(), this);
     }
 
     @Override
@@ -30,8 +32,21 @@ public final class PressF extends JavaPlugin {
         if (command.getName().equals("pressf")) {
             Player player = (Player) sender;
 
-            //TODO: Replace "player" with a UUID of the player who sent the last message before the sender.
-            Player target = args.length != 0 ? Bukkit.getPlayer(args[0]) : player;
+            Player lastMessenger = Events.getLastMessenger();
+
+            //target assignment (who is receiving the F)
+            Player target;
+            if (args.length != 0) {
+                //first check if arg given
+                target = Bukkit.getPlayer(args[0]);
+            } else if (lastMessenger != null) {
+                //if not set target to last person to send a message
+                target = lastMessenger;
+            } else {
+                //if not set target to the command sender
+                //should only happen if there has not yet been a message sent
+                target = player;
+            }
 
             getLogger().info("Pressed F. target = " + target);
 
