@@ -12,7 +12,6 @@ import org.jetbrains.annotations.NotNull;
 
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.UUID;
 
 public final class PressF extends JavaPlugin {
@@ -35,7 +34,7 @@ public final class PressF extends JavaPlugin {
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
-        if (command.getName().equals("pressf")) {
+        if (command.getName().equals("pressf") && sender instanceof Player) {
             Events events = new Events();
 
             Player player = (Player) sender;
@@ -59,7 +58,6 @@ public final class PressF extends JavaPlugin {
             getLogger().info("Pressed F. target = " + target);
 
             //if player is listed, set count to their current fCount, if not, initialize with 0
-            assert target != null;
             int count = fCount.getOrDefault(target.getUniqueId(), 0);
 
             //increment target's fCount
@@ -73,7 +71,7 @@ public final class PressF extends JavaPlugin {
             return true;
         }
 
-        if (command.getName().equals("viewf")) {
+        if (command.getName().equals("viewf") && sender instanceof Player) {
             Player player = (Player) sender;
 
             Component viewF = MiniMessage.get().parse("<prefix> You have received <count> <fKey>s.",
