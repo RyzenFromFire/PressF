@@ -1,5 +1,8 @@
 package me.ryzenfromfire.pressf;
 
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.minimessage.MiniMessage;
+import net.kyori.adventure.text.minimessage.Template;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -7,13 +10,16 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 
+
 import java.util.HashMap;
+import java.util.List;
 import java.util.UUID;
-import java.util.function.Supplier;
 
 public final class PressF extends JavaPlugin {
 
     HashMap<UUID, Integer> fCount = new HashMap<>();
+    Component prefix = MiniMessage.get().parse("<#2e2d2b>[<reset>PressF<#2e2d2b>]<reset>");
+    Component fKey = MiniMessage.get().parse("<#2e2d2b>[<#edebe6><bold>F</bold><#2e2d2b>]<reset>");
 
     @Override
     public void onEnable() {
@@ -59,13 +65,22 @@ public final class PressF extends JavaPlugin {
             //increment target's fCount
             fCount.put(target.getUniqueId(), count + 1);
 
-            player.sendMessage("[PressF] Pressed F to pay respects to " + target.getName() + ".");
+            Component pressedF = MiniMessage.get().parse("<prefix> Pressed <fKey> to pay respects to <player>.",
+                    Template.of("prefix", prefix),
+                    Template.of("fKey", fKey),
+                    Template.of("player", target.displayName()));
+            player.sendMessage(pressedF);
             return true;
         }
 
         if (command.getName().equals("viewf")) {
             Player player = (Player) sender;
-            player.sendMessage("[PressF] You have " + fCount.get(player.getUniqueId()) + " F's.");
+
+            Component viewF = MiniMessage.get().parse("<prefix> You have received <count> <fKey>s.",
+                    Template.of("prefix", prefix),
+                    Template.of("fKey", fKey),
+                    Template.of("count", String.valueOf(fCount.get(player.getUniqueId()))));
+            player.sendMessage(viewF);
 
             return true;
         }
