@@ -7,13 +7,13 @@ import org.bukkit.event.Listener;
 
 public class Events implements Listener {
 
-    private static Player lastMessenger;
+    private Player lastMessenger;
 
     @EventHandler
     public void onChat(AsyncChatEvent event) {
         lastMessenger = event.getPlayer();
     }
 
-    public static Player getLastMessenger() { return lastMessenger; }
+    public Player getLastMessenger() { return lastMessenger; }
 
 }

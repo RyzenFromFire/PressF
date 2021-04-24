@@ -30,9 +30,11 @@ public final class PressF extends JavaPlugin {
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
         if (command.getName().equals("pressf")) {
+            Events events = new Events();
+
             Player player = (Player) sender;
 
-            Player lastMessenger = Events.getLastMessenger();
+            Player lastMessenger = events.getLastMessenger();
 
             //target assignment (who is receiving the F)
             Player target;
