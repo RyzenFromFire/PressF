@@ -17,8 +17,8 @@ public final class PressF extends JavaPlugin {
     private ConfigLoader configLoader;
 
     HashMap<UUID, Integer> fCount = new HashMap<>();
-    Component prefix = configLoader.getPrefix();
-    Component fKey = configLoader.getFKey();
+    Component prefix;
+    Component fKey;
 
     @Override
     public void onEnable() {
@@ -26,6 +26,8 @@ public final class PressF extends JavaPlugin {
         getLogger().info("Pressing the start button (not F).");
         this.getServer().getPluginManager().registerEvents(new Events(), this);
         this.configLoader = new ConfigLoader(this);
+        prefix = configLoader.getPrefix();
+        fKey = configLoader.getFKey();
     }
 
     @Override
@@ -81,6 +83,11 @@ public final class PressF extends JavaPlugin {
                     Template.of("count", String.valueOf(fCount.get(player.getUniqueId()))));
             player.sendMessage(viewF);
 
+            return true;
+        }
+
+        if (!(sender instanceof Player)) {
+            getLogger().info("You cannot press F from the console. F for you.");
             return true;
         }
 
