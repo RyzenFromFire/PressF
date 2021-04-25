@@ -5,6 +5,7 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.UUID;
 
@@ -46,6 +47,12 @@ public class Data {
         map.forEach((k, v) -> {
             fCountYml.set(String.valueOf(k), v);
         });
+
+        try {
+            fCountYml.save(fCountFile);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
 }
