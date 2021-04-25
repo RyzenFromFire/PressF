@@ -161,14 +161,14 @@ public final class PressF extends JavaPlugin {
         } else if (command.getName().equals("viewf") && !(sender instanceof Player)) { //CONSOLE
             if (args.length == 0) { getLogger().info("You are the console, you don't exist. You can't have an F."); }
             else {
-                //target assignment (who is receiving the F)
-                UUID targetId = Bukkit.getOfflinePlayer(args[0]).getUniqueId();
-                
                 //check for data
                 if (noData(args[0])) {
                     getLogger().info("Error: Invalid target. Please provide the name of a valid player.");
                     return false;
                 }
+
+                //target assignment (who is receiving the F)
+                UUID targetId = Bukkit.getOfflinePlayer(args[0]).getUniqueId();
                 
                 //send message to console
                 getLogger().info(args[0] + " has received " + fCount.get(targetId) + "Fs.");
