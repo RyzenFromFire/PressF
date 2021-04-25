@@ -78,27 +78,32 @@ public final class PressF extends JavaPlugin {
 
             Player lastMessenger = events.getLastMessenger();
 
+            String targetName;
+
             //target assignment (who is receiving the F)
             UUID targetId;
             if (args.length != 0) {
                 //if argument is given, find the player based on passed string username
+                targetName = args[0];
 
                 //check for data
-                if (noData(args[0])) {
+                if (noData(targetName)) {
                     player.sendMessage(invalidTarget);
                     return false;
                 }
 
                 //set targetId
-                targetId = Bukkit.getOfflinePlayer(args[0]).getUniqueId();
+                targetId = Bukkit.getOfflinePlayer(targetName).getUniqueId();
 
             } else if (lastMessenger != null) {
                 //if not set target to last person to send a message
                 targetId = lastMessenger.getUniqueId();
+                targetName = lastMessenger.getName();
             } else {
                 //if not set target to the command sender
                 //should only happen if there has not yet been a message sent
                 targetId = player.getUniqueId();
+                targetName = player.getName();
             }
 
             //increment target's fCount
@@ -109,7 +114,7 @@ public final class PressF extends JavaPlugin {
             Component pressedF = MiniMessage.get().parse("<prefix> Pressed <fKey> to pay respects to <player>.",
                     Template.of("prefix", prefix),
                     Template.of("fKey", fKey),
-                    Template.of("player", args[0]));
+                    Template.of("player", targetName));
             player.sendMessage(pressedF);
             return true;
         } else if (command.getName().equals("pressf") && !(sender instanceof Player)) { //CONSOLE
@@ -171,7 +176,7 @@ public final class PressF extends JavaPlugin {
                 UUID targetId = Bukkit.getOfflinePlayer(args[0]).getUniqueId();
                 
                 //send message to console
-                getLogger().info(args[0] + " has received " + fCount.get(targetId) + "Fs.");
+                getLogger().info(args[0] + " has received " + fCount.get(targetId) + " Fs.");
             }
             return true;
         }
