@@ -78,22 +78,23 @@ public final class PressF extends JavaPlugin {
 
             Player lastMessenger = events.getLastMessenger();
 
-            String targetName;
-
             //target assignment (who is receiving the F)
             UUID targetId;
+            String targetName;
             if (args.length != 0) {
                 //if argument is given, find the player based on passed string username
-                targetName = args[0];
 
                 //check for data
-                if (noData(targetName)) {
+                if (noData(args[0])) {
                     player.sendMessage(invalidTarget);
                     return false;
                 }
 
                 //set targetId
-                targetId = Bukkit.getOfflinePlayer(targetName).getUniqueId();
+                targetId = Bukkit.getOfflinePlayer(args[0]).getUniqueId();
+
+                //set targetName
+                targetName = Bukkit.getOfflinePlayer(args[0]).getName();
 
             } else if (lastMessenger != null) {
                 //if not set target to last person to send a message
@@ -130,6 +131,7 @@ public final class PressF extends JavaPlugin {
 
             //target assignment (who is receiving the F)
             UUID targetId;
+            String targetName;
             Component subject; //have correct grammar for message
             if (args.length != 0) {
                 //if argument is given, find the player based on passed string username
@@ -143,7 +145,10 @@ public final class PressF extends JavaPlugin {
                 //set targetId
                 targetId = Bukkit.getOfflinePlayer(args[0]).getUniqueId();
 
-                subject = MiniMessage.get().parse(args[0] + " has");
+                //set targetName
+                targetName = Bukkit.getOfflinePlayer(args[0]).getName();
+
+                subject = MiniMessage.get().parse(targetName + " has");
             } else {
                 //if not set target to the command sender
                 //should only happen if there has not yet been a message sent
