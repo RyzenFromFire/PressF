@@ -3,6 +3,7 @@ package me.ryzenfromfire.pressf;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.minimessage.Template;
+import net.kyori.adventure.text.serializer.plain.PlainComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -103,12 +104,14 @@ public final class PressF extends JavaPlugin {
                             Template.of("prefix", prefix),
                             Template.of("usage", usage)));
                 } else {
-                    getLogger().info(String.valueOf(usage));
+                    getLogger().info(PlainComponentSerializer.plain().serialize(usage));
                 }
                 return true;
             } else {
                 if (args[0].equals("reload")) {
                     configLoader.reloadConfig();
+                    prefix = configLoader.getPrefix();
+                    fKey = configLoader.getFKey();
 
                     //send message reloading is complete.
                     if (sender instanceof Player) {
@@ -117,7 +120,7 @@ public final class PressF extends JavaPlugin {
                                 Template.of("prefix", prefix),
                                 Template.of("reload", reloadingMsg)));
                     } else {
-                        getLogger().info(String.valueOf(reloadingMsg));
+                        getLogger().info(PlainComponentSerializer.plain().serialize(reloadingMsg));
                     }
 
                     return true;

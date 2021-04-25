@@ -16,16 +16,16 @@ public class ConfigLoader {
 
     public ConfigLoader(PressF plugin) {
         this.plugin = plugin;
+        this.plugin.saveDefaultConfig();
         loadConfig();
     }
 
     private void loadConfig() {
-        plugin.saveDefaultConfig();
         FileConfiguration config = plugin.getConfig();
         String config_prefix = config.getString("prefix");
-        prefix = MiniMessage.get().parse(config_prefix);
+        this.prefix = MiniMessage.get().parse(config_prefix);
         String config_fKey = config.getString("fkey");
-        fKey = MiniMessage.get().parse(config_fKey);
+        this.fKey = MiniMessage.get().parse(config_fKey);
     }
 
     public Component getPrefix() { return this.prefix; }
@@ -33,6 +33,7 @@ public class ConfigLoader {
     public Component getFKey() { return this.fKey; }
 
     public void reloadConfig() {
+        plugin.reloadConfig();
         loadConfig();
     }
 
