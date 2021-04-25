@@ -16,8 +16,9 @@ import java.util.UUID;
 public final class PressF extends JavaPlugin {
 
     private ConfigLoader configLoader;
+    private Data data;
 
-    HashMap<UUID, Integer> fCount = new HashMap<>();
+    public HashMap<UUID, Integer> fCount = new HashMap<>();
     Component prefix;
     Component fKey;
 
@@ -29,11 +30,21 @@ public final class PressF extends JavaPlugin {
         this.configLoader = new ConfigLoader(this);
         prefix = configLoader.getPrefix();
         fKey = configLoader.getFKey();
+
+        this.data = new Data(this);
+        data.load(fCount);
     }
 
     @Override
     public void onDisable() {
         // Plugin shutdown logic
+        getLogger().info("Saving data...");
+        data.save(fCount);
+        getLogger().info("Saved data, shutting down.");
+    }
+
+    public HashMap<UUID, Integer> get_fCount() {
+        return fCount;
     }
 
     @Override
@@ -101,8 +112,10 @@ public final class PressF extends JavaPlugin {
         }
 
         if (command.getName().equals("pfadmin")) {
-            Component usage = MiniMessage.get().parse("Usage: /pfadmin <reload>");
+            Component usage = MiniMessage.get().parse("Usage: /pfadmin <reload | load | save>");
             Component reloadingMsg = MiniMessage.get().parse("Reloaded config file.");
+            Component saved = MiniMessage.get().parse("Saved data to file.");
+            Component loaded = MiniMessage.get().parse("Loaded data from file.");
 
             if (args.length == 0) {
                 if (sender instanceof Player) {
@@ -115,22 +128,52 @@ public final class PressF extends JavaPlugin {
                 }
                 return true;
             } else {
-                if (args[0].equals("reload")) {
-                    configLoader.reloadConfig();
-                    prefix = configLoader.getPrefix();
-                    fKey = configLoader.getFKey();
+                switch (args[0]) {
+                    case "reload":
+                        configLoader.reloadConfig();
+                        prefix = configLoader.getPrefix();
+                        fKey = configLoader.getFKey();
 
-                    //send message reloading is complete.
-                    if (sender instanceof Player) {
-                        Player player = (Player) sender;
-                        player.sendMessage(MiniMessage.get().parse("<prefix> <reload>",
-                                Template.of("prefix", prefix),
-                                Template.of("reload", reloadingMsg)));
-                    } else {
-                        getLogger().info(PlainComponentSerializer.plain().serialize(reloadingMsg));
-                    }
+                        //send message reloading is complete.
+                        if (sender instanceof Player) {
+                            Player player = (Player) sender;
+                            player.sendMessage(MiniMessage.get().parse("<prefix> <reload>",
+                                    Template.of("prefix", prefix),
+                                    Template.of("reload", reloadingMsg)));
+                        } else {
+                            getLogger().info(PlainComponentSerializer.plain().serialize(reloadingMsg));
+                        }
 
-                    return true;
+                        return true;
+
+                    case "load":
+                        data.load(fCount);
+
+                        //send message loading data is complete
+                        if (sender instanceof Player) {
+                            Player player = (Player) sender;
+                            player.sendMessage(MiniMessage.get().parse("<prefix> <loaded>",
+                                    Template.of("prefix", prefix),
+                                    Template.of("loaded", loaded)));
+                        } else {
+                            getLogger().info(PlainComponentSerializer.plain().serialize(loaded));
+                        }
+                        return true;
+
+                    case "save":
+                        data.save(fCount);
+
+                        //send message saving data is complete
+                        if (sender instanceof Player) {
+                            Player player = (Player) sender;
+                            player.sendMessage(MiniMessage.get().parse("<prefix> <saved>",
+                                    Template.of("prefix", prefix),
+                                    Template.of("saved", saved)));
+                        } else {
+                            getLogger().info(PlainComponentSerializer.plain().serialize(saved));
+                        }
+
+                        return true;
                 }
             }
         }
