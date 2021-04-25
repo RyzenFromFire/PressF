@@ -49,7 +49,14 @@ public final class PressF extends JavaPlugin {
             Player target;
             if (args.length != 0) {
                 //first check if arg given
-                target = Bukkit.getPlayer(args[0]);
+                if (Bukkit.getPlayer(args[0]) != null) {
+                    target = Bukkit.getPlayer(args[0]);
+                } else {
+                    Component invalidTarget = MiniMessage.get().parse("<prefix> Error: Invalid target. Please provide the name of an online player.",
+                            Template.of("prefix", prefix));
+                    player.sendMessage(invalidTarget);
+                    return false;
+                }
             } else if (lastMessenger != null) {
                 //if not set target to last person to send a message
                 target = lastMessenger;
