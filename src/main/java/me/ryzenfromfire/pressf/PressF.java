@@ -5,6 +5,7 @@ import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.minimessage.Template;
 import net.kyori.adventure.text.serializer.plain.PlainComponentSerializer;
 import org.bukkit.Bukkit;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -27,7 +28,8 @@ public final class PressF extends JavaPlugin {
         return fCount;
     }
 
-    private boolean noData(Player target) { //Checks if the given target has any data stored and if they have played before.
+    private boolean noData(String targetName) { //Checks if the given target has any data stored and if they have played before.
+        OfflinePlayer target = Bukkit.getOfflinePlayer(targetName);
         if (fCount.get(target.getUniqueId()) == null) {
             if (target.hasPlayedBefore()) { //player has played before but has never been interacted with
                 fCount.putIfAbsent(target.getUniqueId(), 0);
@@ -77,34 +79,37 @@ public final class PressF extends JavaPlugin {
             Player lastMessenger = events.getLastMessenger();
 
             //target assignment (who is receiving the F)
-            Player target;
+            UUID targetId;
             if (args.length != 0) {
                 //if argument is given, find the player based on passed string username
-                target = (Player) Bukkit.getOfflinePlayer(args[0]);
+
+                //check for data
+                if (noData(args[0])) {
+                    player.sendMessage(invalidTarget);
+                    return false;
+                }
+
+                //set targetId
+                targetId = Bukkit.getOfflinePlayer(args[0]).getUniqueId();
+
             } else if (lastMessenger != null) {
                 //if not set target to last person to send a message
-                target = lastMessenger;
+                targetId = lastMessenger.getUniqueId();
             } else {
                 //if not set target to the command sender
                 //should only happen if there has not yet been a message sent
-                target = player;
-            }
-
-            //check for data
-            if (noData(target)) {
-                player.sendMessage(invalidTarget);
-                return false;
+                targetId = player.getUniqueId();
             }
 
             //increment target's fCount
-            fCount.put(target.getUniqueId(), fCount.get(target.getUniqueId()) + 1);
+            fCount.put(targetId, fCount.get(targetId) + 1);
 
             //send message to player
             //TODO: Make a global message instead of only notifying the sender player.
             Component pressedF = MiniMessage.get().parse("<prefix> Pressed <fKey> to pay respects to <player>.",
                     Template.of("prefix", prefix),
                     Template.of("fKey", fKey),
-                    Template.of("player", target.displayName()));
+                    Template.of("player", args[0]));
             player.sendMessage(pressedF);
             return true;
         } else if (command.getName().equals("pressf") && !(sender instanceof Player)) { //CONSOLE
@@ -119,25 +124,29 @@ public final class PressF extends JavaPlugin {
             Player player = (Player) sender;
 
             //target assignment (who is receiving the F)
-            Player target;
+            UUID targetId;
             Component subject; //have correct grammar for message
             if (args.length != 0) {
                 //if argument is given, find the player based on passed string username
-                target = (Player) Bukkit.getOfflinePlayer(args[0]);
-                subject = MiniMessage.get().parse(target.getName() + " has");
+
+                //check for data
+                if (noData(args[0])) {
+                    player.sendMessage(invalidTarget);
+                    return false;
+                }
+
+                //set targetId
+                targetId = Bukkit.getOfflinePlayer(args[0]).getUniqueId();
+
+                subject = MiniMessage.get().parse(args[0] + " has");
             } else {
                 //if not set target to the command sender
-                target = player;
+                //should only happen if there has not yet been a message sent
+                targetId = player.getUniqueId();
                 subject = MiniMessage.get().parse("You have");
 
                 //if player fCount is null, put 0
-                fCount.putIfAbsent(player.getUniqueId(), 0);
-            }
-
-            //check for data
-            if (noData(target)) {
-                player.sendMessage(invalidTarget);
-                return false;
+                fCount.putIfAbsent(player.getUniqueId(), 0); // no need to check data here since player is always online
             }
 
             //send message to player
@@ -145,7 +154,7 @@ public final class PressF extends JavaPlugin {
                     Template.of("prefix", prefix),
                     Template.of("subject", subject),
                     Template.of("fKey", fKey),
-                    Template.of("count", String.valueOf(fCount.get(target.getUniqueId()))));
+                    Template.of("count", String.valueOf(fCount.get(targetId))));
             player.sendMessage(viewF);
 
             return true;
@@ -153,16 +162,16 @@ public final class PressF extends JavaPlugin {
             if (args.length == 0) { getLogger().info("You are the console, you don't exist. You can't have an F."); }
             else {
                 //target assignment (who is receiving the F)
-                Player target = (Player) Bukkit.getOfflinePlayer(args[0]);
+                UUID targetId = Bukkit.getOfflinePlayer(args[0]).getUniqueId();
                 
                 //check for data
-                if (noData(target)) {
+                if (noData(args[0])) {
                     getLogger().info("Error: Invalid target. Please provide the name of a valid player.");
                     return false;
                 }
                 
                 //send message to console
-                getLogger().info(target.getName() + " has received " + fCount.get(target.getUniqueId()) + "Fs.");
+                getLogger().info(args[0] + " has received " + fCount.get(targetId) + "Fs.");
             }
             return true;
         }
