@@ -72,6 +72,9 @@ public final class PressF extends JavaPlugin {
                     Template.of("player", target.displayName()));
             player.sendMessage(pressedF);
             return true;
+        } else if (command.getName().equals("pressf") && !(sender instanceof Player)) {
+            getLogger().info("You cannot press F from the console. F for you.");
+            return true;
         }
 
         if (command.getName().equals("viewf") && sender instanceof Player) {
@@ -84,11 +87,42 @@ public final class PressF extends JavaPlugin {
             player.sendMessage(viewF);
 
             return true;
+        } else if (command.getName().equals("viewf") && !(sender instanceof Player)) {
+            getLogger().info("You are the console, you don't exist. You can't have an F.");
+            return true;
         }
 
-        if (!(sender instanceof Player)) {
-            getLogger().info("You cannot press F from the console. F for you.");
-            return true;
+        if (command.getName().equals("pfadmin")) {
+            Component usage = MiniMessage.get().parse("Usage: /pfadmin <reload>");
+            Component reloadingMsg = MiniMessage.get().parse("Reloaded config file.");
+
+            if (args.length == 0) {
+                if (sender instanceof Player) {
+                    Player player = (Player) sender;
+                    player.sendMessage(MiniMessage.get().parse("<prefix> <usage>",
+                            Template.of("prefix", prefix),
+                            Template.of("usage", usage)));
+                } else {
+                    getLogger().info(String.valueOf(usage));
+                }
+                return true;
+            } else {
+                if (args[0].equals("reload")) {
+                    configLoader.reloadConfig();
+
+                    //send message reloading is complete.
+                    if (sender instanceof Player) {
+                        Player player = (Player) sender;
+                        player.sendMessage(MiniMessage.get().parse("<prefix> <reload>",
+                                Template.of("prefix", prefix),
+                                Template.of("reload", reloadingMsg)));
+                    } else {
+                        getLogger().info(String.valueOf(reloadingMsg));
+                    }
+
+                    return true;
+                }
+            }
         }
 
         return false;

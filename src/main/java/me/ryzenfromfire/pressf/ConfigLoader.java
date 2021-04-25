@@ -32,4 +32,8 @@ public class ConfigLoader {
 
     public Component getFKey() { return this.fKey; }
 
+    public void reloadConfig() {
+        loadConfig();
+    }
+
 }

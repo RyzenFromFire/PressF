@@ -12,3 +12,7 @@ commands:
   viewf:
     description: See how many Fs you have been given.
     usage: /viewf
+    aliases: viewfs
+  pfadmin:
+    description: Handles admin commands, like reloading the config.
+    usage: /pfadmin <reload>
