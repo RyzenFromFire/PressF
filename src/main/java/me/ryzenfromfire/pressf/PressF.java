@@ -99,6 +99,9 @@ public final class PressF extends JavaPlugin {
         if (command.getName().equals("viewf") && sender instanceof Player) {
             Player player = (Player) sender;
 
+            //if fCount is null, put 0
+            fCount.putIfAbsent(player.getUniqueId(), 0);
+
             Component viewF = MiniMessage.get().parse("<prefix> You have received <count> <fKey>s.",
                     Template.of("prefix", prefix),
                     Template.of("fKey", fKey),
