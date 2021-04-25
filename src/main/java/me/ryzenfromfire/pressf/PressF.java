@@ -18,9 +18,26 @@ public final class PressF extends JavaPlugin {
     private ConfigLoader configLoader;
     private Data data;
 
-    public HashMap<UUID, Integer> fCount = new HashMap<>();
+    private HashMap<UUID, Integer> fCount = new HashMap<>();
     Component prefix;
     Component fKey;
+
+
+    public HashMap<UUID, Integer> get_fCount() {
+        return fCount;
+    }
+
+    private boolean noData(Player target) { //Checks if the given target has any data stored and if they have played before.
+        if (fCount.get(target.getUniqueId()) == null) {
+            if (target.hasPlayedBefore()) { //player has played before but has never been interacted with
+                fCount.putIfAbsent(target.getUniqueId(), 0);
+                return false;
+            } else { //player has not played before and has no data
+                return true;
+            }
+        }
+        return false;
+    }
 
     @Override
     public void onEnable() {
@@ -43,13 +60,16 @@ public final class PressF extends JavaPlugin {
         getLogger().info("Saved data, shutting down.");
     }
 
-    public HashMap<UUID, Integer> get_fCount() {
-        return fCount;
-    }
-
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
-        if (command.getName().equals("pressf") && sender instanceof Player) {
+        //Global Command Components
+        Component invalidTarget = MiniMessage.get().parse("<prefix> Error: Invalid target. Please provide the name of a valid player.",
+                Template.of("prefix", prefix));
+
+        //
+        //   PRESSF
+        //
+        if (command.getName().equals("pressf") && sender instanceof Player) { //PLAYER
             Events events = new Events();
 
             Player player = (Player) sender;
@@ -59,15 +79,8 @@ public final class PressF extends JavaPlugin {
             //target assignment (who is receiving the F)
             Player target;
             if (args.length != 0) {
-                //first check if arg given
-                if (Bukkit.getPlayer(args[0]) != null) {
-                    target = Bukkit.getPlayer(args[0]);
-                } else {
-                    Component invalidTarget = MiniMessage.get().parse("<prefix> Error: Invalid target. Please provide the name of an online player.",
-                            Template.of("prefix", prefix));
-                    player.sendMessage(invalidTarget);
-                    return false;
-                }
+                //if argument is given, find the player based on passed string username
+                target = (Player) Bukkit.getOfflinePlayer(args[0]);
             } else if (lastMessenger != null) {
                 //if not set target to last person to send a message
                 target = lastMessenger;
@@ -77,43 +90,86 @@ public final class PressF extends JavaPlugin {
                 target = player;
             }
 
-            getLogger().info("Pressed F. target = " + target);
-
-            //if player is listed, set count to their current fCount, if not, initialize with 0
-            int count = fCount.getOrDefault(target.getUniqueId(), 0);
+            //check for data
+            if (noData(target)) {
+                player.sendMessage(invalidTarget);
+                return false;
+            }
 
             //increment target's fCount
-            fCount.put(target.getUniqueId(), count + 1);
+            fCount.put(target.getUniqueId(), fCount.get(target.getUniqueId()) + 1);
 
+            //send message to player
+            //TODO: Make a global message instead of only notifying the sender player.
             Component pressedF = MiniMessage.get().parse("<prefix> Pressed <fKey> to pay respects to <player>.",
                     Template.of("prefix", prefix),
                     Template.of("fKey", fKey),
                     Template.of("player", target.displayName()));
             player.sendMessage(pressedF);
             return true;
-        } else if (command.getName().equals("pressf") && !(sender instanceof Player)) {
-            getLogger().info("You cannot press F from the console. F for you.");
+        } else if (command.getName().equals("pressf") && !(sender instanceof Player)) { //CONSOLE
+            getLogger().info("You cannot press F from the console. F.");
             return true;
         }
 
-        if (command.getName().equals("viewf") && sender instanceof Player) {
+        //
+        // VIEWF
+        //
+        if (command.getName().equals("viewf") && sender instanceof Player) { //PLAYER
             Player player = (Player) sender;
 
-            //if fCount is null, put 0
-            fCount.putIfAbsent(player.getUniqueId(), 0);
+            //target assignment (who is receiving the F)
+            Player target;
+            Component subject; //have correct grammar for message
+            if (args.length != 0) {
+                //if argument is given, find the player based on passed string username
+                target = (Player) Bukkit.getOfflinePlayer(args[0]);
+                subject = MiniMessage.get().parse(target.getName() + " has");
+            } else {
+                //if not set target to the command sender
+                target = player;
+                subject = MiniMessage.get().parse("You have");
 
-            Component viewF = MiniMessage.get().parse("<prefix> You have received <count> <fKey>s.",
+                //if player fCount is null, put 0
+                fCount.putIfAbsent(player.getUniqueId(), 0);
+            }
+
+            //check for data
+            if (noData(target)) {
+                player.sendMessage(invalidTarget);
+                return false;
+            }
+
+            //send message to player
+            Component viewF = MiniMessage.get().parse("<prefix> <subject> received <count> <fKey>s.",
                     Template.of("prefix", prefix),
+                    Template.of("subject", subject),
                     Template.of("fKey", fKey),
-                    Template.of("count", String.valueOf(fCount.get(player.getUniqueId()))));
+                    Template.of("count", String.valueOf(fCount.get(target.getUniqueId()))));
             player.sendMessage(viewF);
 
             return true;
-        } else if (command.getName().equals("viewf") && !(sender instanceof Player)) {
-            getLogger().info("You are the console, you don't exist. You can't have an F.");
+        } else if (command.getName().equals("viewf") && !(sender instanceof Player)) { //CONSOLE
+            if (args.length == 0) { getLogger().info("You are the console, you don't exist. You can't have an F."); }
+            else {
+                //target assignment (who is receiving the F)
+                Player target = (Player) Bukkit.getOfflinePlayer(args[0]);
+                
+                //check for data
+                if (noData(target)) {
+                    getLogger().info("Error: Invalid target. Please provide the name of a valid player.");
+                    return false;
+                }
+                
+                //send message to console
+                getLogger().info(target.getName() + " has received " + fCount.get(target.getUniqueId()) + "Fs.");
+            }
             return true;
         }
 
+        //
+        // PFADMIN
+        //
         if (command.getName().equals("pfadmin")) {
             Component usage = MiniMessage.get().parse("Usage: /pfadmin <reload | load | save>");
             Component reloadingMsg = MiniMessage.get().parse("Reloaded config file.");
