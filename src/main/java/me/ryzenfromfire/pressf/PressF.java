@@ -181,7 +181,7 @@ public final class PressF extends JavaPlugin {
                 UUID targetId = Bukkit.getOfflinePlayer(args[0]).getUniqueId();
                 
                 //send message to console
-                getLogger().info(args[0] + " has received " + fCount.get(targetId) + " Fs.");
+                getLogger().info(Bukkit.getOfflinePlayer(args[0]).getName() + " has received " + fCount.get(targetId) + " Fs.");
             }
             return true;
         }
