@@ -11,8 +11,8 @@ public class ConfigLoader {
 
     private final PressF plugin;
 
-    private Component prefix;
-    private Component fKey;
+    private Component prefix, fKey;
+    private String messageColor, accentColor, errorColor;
 
     public ConfigLoader(PressF plugin) {
         this.plugin = plugin;
@@ -22,15 +22,34 @@ public class ConfigLoader {
 
     private void loadConfig() {
         FileConfiguration config = plugin.getConfig();
-        String config_prefix = config.getString("prefix");
-        this.prefix = MiniMessage.get().parse(config_prefix);
-        String config_fKey = config.getString("fkey");
-        this.fKey = MiniMessage.get().parse(config_fKey);
+
+        this.prefix = MiniMessage.get().parse(config.getString("prefix"));
+        this.fKey = MiniMessage.get().parse(config.getString("fkey"));
+        this.messageColor = "<" + config.getString("message-color") + ">";
+        this.accentColor = "<" + config.getString("accent-color") + ">";
+        this.errorColor = "<" + config.getString("error-color") + ">";
     }
 
     public Component getPrefix() { return this.prefix; }
 
     public Component getFKey() { return this.fKey; }
+
+    public enum colorType {
+        message, accent, error
+    }
+
+    public String getColor(colorType type) {
+        switch(type) {
+            case message:
+                return this.messageColor;
+            case accent:
+                return this.accentColor;
+            case error:
+                return this.errorColor;
+            default:
+                return "";
+        }
+    }
 
     public void reloadConfig() {
         plugin.reloadConfig();

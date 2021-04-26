@@ -1,7 +1,23 @@
 # PressF by RyzenFromFire
 
+# Message Components
+# Uses MiniMessage format and tags
+# https://github.com/KyoriPowered/adventure-text-minimessage
+
 # Customize the prefix shown with commands in chat
-prefix: "<#2e2d2b>[<reset>PressF<#2e2d2b>]<reset>"
+prefix: "<#2e2d2b>[<#deb187>PressF<#2e2d2b>]<reset>"
 
 # Customize the look of the [F] key
 fkey: "<#2e2d2b>[<#edebe6><bold>F</bold><#2e2d2b>]<reset>"
+
+# Message Text Color
+# Format as hex value, ex. #000000
+
+# Normal Messages
+message-color: "#BDC3C7"
+
+# Accent Color
+accent-color: "#deb187"
+
+# Error Message Color
+error-color: "#F08080"
