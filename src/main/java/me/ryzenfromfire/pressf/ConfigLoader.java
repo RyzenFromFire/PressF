@@ -13,6 +13,7 @@ public class ConfigLoader {
 
     private Component prefix, fKey;
     private String messageColor, accentColor, errorColor;
+    private long cooldown;
 
     public ConfigLoader(PressF plugin) {
         this.plugin = plugin;
@@ -28,6 +29,7 @@ public class ConfigLoader {
         this.messageColor = "<" + config.getString("message-color") + ">";
         this.accentColor = "<" + config.getString("accent-color") + ">";
         this.errorColor = "<" + config.getString("error-color") + ">";
+        this.cooldown = config.getLong("cooldown");
     }
 
     public Component getPrefix() { return this.prefix; }
@@ -50,6 +52,8 @@ public class ConfigLoader {
                 return "";
         }
     }
+
+    public long getCooldown() { return this.cooldown; }
 
     public void reloadConfig() {
         plugin.reloadConfig();

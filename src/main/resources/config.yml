@@ -21,3 +21,7 @@ accent-color: "#deb187"
 
 # Error Message Color
 error-color: "#F08080"
+
+# Cooldown Settings
+# Set a cooldown for how often a player can press F (in seconds)
+cooldown: 60

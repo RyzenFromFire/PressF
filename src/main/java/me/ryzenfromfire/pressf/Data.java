@@ -6,7 +6,7 @@ import org.bukkit.configuration.file.YamlConfiguration;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 public class Data {
@@ -21,7 +21,7 @@ public class Data {
         this.plugin = plugin;
     }
 
-    public void load(HashMap<UUID, Integer> map) {
+    public void load(Map<UUID, Integer> map) {
 
         fCountFile = new File(plugin.getDataFolder() + File.separator + "fCount.yml");
 
@@ -43,7 +43,7 @@ public class Data {
         }
     }
 
-    public void save(HashMap<UUID, Integer> map) {
+    public void save(Map<UUID, Integer> map) {
         map.forEach((k, v) -> {
             fCountYml.set(String.valueOf(k), v);
         });

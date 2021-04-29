@@ -12,20 +12,21 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 public final class PressF extends JavaPlugin {
 
     private ConfigLoader configLoader;
+    private CooldownManager cooldownManager;
     private Data data;
 
-    private HashMap<UUID, Integer> fCount = new HashMap<>();
+    private final Map<UUID, Integer> fCount = new HashMap<>();
     private Component prefix, fKey;
     private String messageColor, accentColor, errorColor;
 
-
-
-    public HashMap<UUID, Integer> get_fCount() {
+    public Map<UUID, Integer> get_fCount() {
         return fCount;
     }
 
@@ -50,12 +51,15 @@ public final class PressF extends JavaPlugin {
         errorColor = configLoader.getColor(ConfigLoader.colorType.error);
     }
 
+    public ConfigLoader getConfigLoader() { return configLoader; }
+
     @Override
     public void onEnable() {
         // Plugin startup logic
         getLogger().info("Pressing the start button (not F).");
         this.getServer().getPluginManager().registerEvents(new Events(), this);
         this.configLoader = new ConfigLoader(this);
+        this.cooldownManager = new CooldownManager(this);
         getComponents();
         this.data = new Data(this);
         data.load(fCount);
@@ -85,6 +89,26 @@ public final class PressF extends JavaPlugin {
             Player player = (Player) sender;
 
             Player lastMessenger = events.getLastMessenger();
+
+            //check if player is on cooldown
+            //first check if player has a cooldown, if not, init to 0
+            if (!cooldownManager.exists(player.getUniqueId())) { cooldownManager.setCooldown(player.getUniqueId(), 0L); }
+
+            //time in ms since command used
+            long timeSince = System.currentTimeMillis() - cooldownManager.getCooldown(player.getUniqueId());
+
+            //is player on cooldown?
+            if (TimeUnit.MILLISECONDS.toSeconds(timeSince) < configLoader.getCooldown()) {
+                //time since command used is less than cooldown, command on cooldown
+                Component onCooldown = MiniMessage.get().parse("<prefix> <ec>You cannot press <fKey> <ec>for another <ac><time> <ec>seconds.",
+                        Template.of("prefix", prefix),
+                        Template.of("ec", errorColor),
+                        Template.of("ac", accentColor),
+                        Template.of("fKey", fKey),
+                        Template.of("time", String.valueOf(configLoader.getCooldown() - TimeUnit.MILLISECONDS.toSeconds(timeSince)))); //convert timeSince to time left to use
+                player.sendMessage(onCooldown);
+                return true;
+            } //otherwise continue
 
             //target assignment (who is receiving the F)
             UUID targetId;
@@ -128,6 +152,9 @@ public final class PressF extends JavaPlugin {
 
             //increment target's fCount
             fCount.put(targetId, fCount.get(targetId) + 1);
+
+            //set cooldown
+            cooldownManager.setCooldown(player.getUniqueId(), System.currentTimeMillis());
 
             //send message to player
             //TODO: Make a global message instead of only notifying the sender player.
@@ -212,7 +239,7 @@ public final class PressF extends JavaPlugin {
         //
         // PFADMIN
         //
-        if (command.getName().equals("pfadmin")) {
+        if (command.getName().equals("pfadmin") && sender.hasPermission("pressf.admin")) {
             Component usage = MiniMessage.get().parse("<mc>Usage: /pfadmin <ac><reload | load | save>", Template.of("mc", messageColor), Template.of("ac", accentColor));
             Component reloadingMsg = MiniMessage.get().parse("<mc>Reloaded config file.", Template.of("mc", messageColor));
             Component saved = MiniMessage.get().parse("<mc>Saved data to file.", Template.of("mc", messageColor));
