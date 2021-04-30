@@ -55,6 +55,10 @@ public class ConfigLoader {
 
     public long getCooldown() { return this.cooldown; }
 
+    public String getRawString(String key) {
+        return plugin.getConfig().getString(key);
+    }
+
     public void reloadConfig() {
         plugin.reloadConfig();
         loadConfig();

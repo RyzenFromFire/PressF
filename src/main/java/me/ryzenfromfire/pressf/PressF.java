@@ -11,9 +11,8 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 public final class PressF extends JavaPlugin {
@@ -156,15 +155,39 @@ public final class PressF extends JavaPlugin {
             //set cooldown
             cooldownManager.setCooldown(player.getUniqueId(), System.currentTimeMillis());
 
-            //send message to player
-            //TODO: Make a global message instead of only notifying the sender player.
-            Component pressedF = MiniMessage.get().parse("<prefix> <mc>Pressed <fKey> <mc>to pay respects to <ac><player><mc>.",
-                    Template.of("prefix", prefix),
-                    Template.of("mc", messageColor),
-                    Template.of("ac", accentColor),
-                    Template.of("fKey", fKey),
-                    Template.of("player", targetName));
-            player.sendMessage(pressedF);
+            //if player clicked the F in chat
+            //hover message will run "/pressf <target> false
+            if (args.length > 1) {
+                if (args[1].equals("false")) {
+                    //send message just to player
+                    //should only trigger from clicking a global message
+                    if (targetName.equals(player.getName())) { targetName = "yourself"; }
+                    Component pressedF = MiniMessage.get().parse("<prefix> <mc>You pressed <fKey> <mc>to pay respects to <ac><target><mc>.",
+                            Template.of("prefix", prefix),
+                            Template.of("mc", messageColor),
+                            Template.of("ac", accentColor),
+                            Template.of("fKey", fKey),
+                            Template.of("target", targetName));
+                    player.sendMessage(pressedF);
+                }
+            } else {
+                //send global server message of the pressed F
+                String actualTargetName = targetName;
+                if (targetName.equals(player.getName())) { targetName = "themself"; }
+                String hoverText = "<mc>Click to press " + configLoader.getRawString("fkey") + " for <ac><aTarget><mc>!"; //hover text hates components
+                Component pressedF = MiniMessage.get().parse("<hover:show_text:'<hoverText>'>" +
+                                "<click:run_command:/pressf <aTarget> false>" +
+                                "<prefix> <ac><player> <mc>pressed <fKey> <mc>to pay respects to <ac><target><mc>.</hover></click>",
+                        Template.of("hoverText", hoverText),
+                        Template.of("prefix", prefix),
+                        Template.of("mc", messageColor),
+                        Template.of("ac", accentColor),
+                        Template.of("fKey", fKey),
+                        Template.of("player", player.getName()),
+                        Template.of("target", targetName),
+                        Template.of("aTarget", actualTargetName));
+                this.getServer().sendMessage(pressedF);
+            }
             return true;
         } else if (command.getName().equals("pressf") && !(sender instanceof Player)) { //CONSOLE
             getLogger().info("You cannot press F from the console. F.");
@@ -190,10 +213,8 @@ public final class PressF extends JavaPlugin {
                     return true;
                 }
 
-                //set targetId
+                //set target
                 targetId = Bukkit.getOfflinePlayer(args[0]).getUniqueId();
-
-                //set targetName
                 targetName = Bukkit.getOfflinePlayer(args[0]).getName();
 
                 subject = MiniMessage.get().parse("<mc>" + targetName + " has", Template.of("mc", messageColor));

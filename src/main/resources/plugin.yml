@@ -7,7 +7,7 @@ description: PressF is a Minecraft plugin that allows users to press F to pay re
 commands:
   pressf:
     description: Press F to pay respects.
-    usage: /pressf <target>
+    usage: /pressf <target> <show_global_message>
     aliases: pf
   viewf:
     description: See how many Fs you have been given.
