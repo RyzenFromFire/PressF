@@ -14,8 +14,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
-import java.util.Map.Entry;
 
 public final class PressF extends JavaPlugin {
 
@@ -25,7 +23,7 @@ public final class PressF extends JavaPlugin {
 
     private final Map<UUID, Integer> fCount = new HashMap<>();
     private Component prefix, fKey, lbHeader;
-    private String messageColor, accentColor, errorColor;
+    private String messageColor, accentColor, accentColor2, errorColor;
 
     public Map<UUID, Integer> get_fCount() {
         return fCount;
@@ -50,6 +48,7 @@ public final class PressF extends JavaPlugin {
         lbHeader = configLoader.getLBHeader();
         messageColor = configLoader.getColor(ConfigLoader.colorType.message);
         accentColor = configLoader.getColor(ConfigLoader.colorType.accent);
+        accentColor2 = configLoader.getColor(ConfigLoader.colorType.accent2);
         errorColor = configLoader.getColor(ConfigLoader.colorType.error);
     }
 
@@ -274,9 +273,9 @@ public final class PressF extends JavaPlugin {
             StringBuilder top10 = new StringBuilder();
             int iLimit = Math.min(playerList.size(), 10);
             for (int i = 0; i < iLimit; i++) {
-                top10.append(String.valueOf(i + 1)).append(". <mc>").append(playerList.get(i)).append("\n");
+                top10.append("<ac2>").append(String.valueOf(i + 1)).append(". <mc>").append(playerList.get(i)).append("\n");
             }
-            Component top10Component = MiniMessage.get().parse(top10.toString(), Template.of("mc", messageColor), Template.of("ac", accentColor));
+            Component top10Component = MiniMessage.get().parse(top10.toString(), Template.of("mc", messageColor), Template.of("ac", accentColor), Template.of("ac2", accentColor2));
             Component lbMessage = MiniMessage.get().parse(
                     "\n<header> \n<list>", Template.of("header", lbHeader), Template.of("list", top10Component));
             player.sendMessage(lbMessage);

@@ -12,7 +12,7 @@ public class ConfigLoader {
     private final PressF plugin;
 
     private Component prefix, fKey, leaderboardHeader;
-    private String messageColor, accentColor, errorColor;
+    private String messageColor, accentColor, accentColor2, errorColor;
     private long cooldown;
 
     public ConfigLoader(PressF plugin) {
@@ -40,7 +40,7 @@ public class ConfigLoader {
     public Component getLBHeader() { return this.leaderboardHeader; }
 
     public enum colorType {
-        message, accent, error
+        message, accent, accent2, error
     }
 
     public String getColor(colorType type) {
@@ -49,6 +49,8 @@ public class ConfigLoader {
                 return this.messageColor;
             case accent:
                 return this.accentColor;
+            case accent2:
+                return this.accentColor2;
             case error:
                 return this.errorColor;
             default:

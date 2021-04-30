@@ -22,6 +22,9 @@ message-color: "#BDC3C7"
 # Accent Color
 accent-color: "#deb187"
 
+# Secondary Accent Color
+accent-color-2: "a4c0db"
+
 # Error Message Color
 error-color: "#F08080"
 
