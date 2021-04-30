@@ -14,6 +14,8 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
+import java.util.Map.Entry;
 
 public final class PressF extends JavaPlugin {
 
@@ -22,7 +24,7 @@ public final class PressF extends JavaPlugin {
     private Data data;
 
     private final Map<UUID, Integer> fCount = new HashMap<>();
-    private Component prefix, fKey;
+    private Component prefix, fKey, lbHeader;
     private String messageColor, accentColor, errorColor;
 
     public Map<UUID, Integer> get_fCount() {
@@ -45,6 +47,7 @@ public final class PressF extends JavaPlugin {
     private void getComponents() {
         prefix = configLoader.getPrefix();
         fKey = configLoader.getFKey();
+        lbHeader = configLoader.getLBHeader();
         messageColor = configLoader.getColor(ConfigLoader.colorType.message);
         accentColor = configLoader.getColor(ConfigLoader.colorType.accent);
         errorColor = configLoader.getColor(ConfigLoader.colorType.error);
@@ -254,6 +257,32 @@ public final class PressF extends JavaPlugin {
                 //send message to console
                 getLogger().info(Bukkit.getOfflinePlayer(args[0]).getName() + " has received " + fCount.get(targetId) + " Fs.");
             }
+            return true;
+        }
+
+        //
+        // PFTOP | F LEADERBOARD
+        //
+        if (command.getName().equals("pressftop") && sender instanceof Player) {
+            Player player = (Player) sender;
+            Map<UUID, Integer> leaderboard = new TreeMap<>();
+            fCount.forEach(leaderboard::put);
+            List<String> playerList = new ArrayList<>();
+            for (Map.Entry<UUID, Integer> entry : leaderboard.entrySet()) {
+                playerList.add(getServer().getOfflinePlayer(entry.getKey()).getName() + ": <ac>" + String.valueOf(entry.getValue()));
+            }
+            StringBuilder top10 = new StringBuilder();
+            int iLimit = Math.min(playerList.size(), 10);
+            for (int i = 0; i < iLimit; i++) {
+                top10.append(String.valueOf(i + 1)).append(". <mc>").append(playerList.get(i)).append("\n");
+            }
+            Component top10Component = MiniMessage.get().parse(top10.toString(), Template.of("mc", messageColor), Template.of("ac", accentColor));
+            Component lbMessage = MiniMessage.get().parse(
+                    "\n<header> \n<list>", Template.of("header", lbHeader), Template.of("list", top10Component));
+            player.sendMessage(lbMessage);
+            return true;
+        } else if (command.getName().equals("pressftop") && !(sender instanceof Player)) { //CONSOLE
+            getLogger().info("You cannot view the F leaderboard from the console.");
             return true;
         }
 

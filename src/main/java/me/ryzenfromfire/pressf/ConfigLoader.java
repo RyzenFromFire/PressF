@@ -11,7 +11,7 @@ public class ConfigLoader {
 
     private final PressF plugin;
 
-    private Component prefix, fKey;
+    private Component prefix, fKey, leaderboardHeader;
     private String messageColor, accentColor, errorColor;
     private long cooldown;
 
@@ -26,6 +26,7 @@ public class ConfigLoader {
 
         this.prefix = MiniMessage.get().parse(config.getString("prefix"));
         this.fKey = MiniMessage.get().parse(config.getString("fkey"));
+        this.leaderboardHeader = MiniMessage.get().parse(config.getString("leaderboard-header"));
         this.messageColor = "<" + config.getString("message-color") + ">";
         this.accentColor = "<" + config.getString("accent-color") + ">";
         this.errorColor = "<" + config.getString("error-color") + ">";
@@ -35,6 +36,8 @@ public class ConfigLoader {
     public Component getPrefix() { return this.prefix; }
 
     public Component getFKey() { return this.fKey; }
+
+    public Component getLBHeader() { return this.leaderboardHeader; }
 
     public enum colorType {
         message, accent, error
