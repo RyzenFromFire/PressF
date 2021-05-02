@@ -15,6 +15,8 @@ import org.jetbrains.annotations.NotNull;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public final class PressF extends JavaPlugin {
 
@@ -279,18 +281,20 @@ public final class PressF extends JavaPlugin {
         //
         if (command.getName().equals("pressftop") && sender instanceof Player) {
             Player player = (Player) sender;
-            Map<Integer, UUID> leaderboard = new TreeMap<>();
-            fCount.forEach((k, v) -> { leaderboard.put(v, k); });
-            List<String> playerList = new ArrayList<>();
-            for (Map.Entry<Integer, UUID> entry : leaderboard.entrySet()) {
-                playerList.add(getServer().getOfflinePlayer(entry.getValue()).getName() + ": <ac>" + String.valueOf(entry.getKey()));
-            }
-            StringBuilder top10 = new StringBuilder();
-            int iLimit = Math.min(playerList.size(), 10);
-            for (int i = iLimit; i > 0; i--) {
-                top10.append("<ac2>").append(String.valueOf((iLimit - i) + 1)).append(". <mc>").append(playerList.get(i - 1)).append("\n");
-            }
-            Component top10Component = MiniMessage.get().parse(top10.toString(), Template.of("mc", messageColor), Template.of("ac", accentColor), Template.of("ac2", accentColor2));
+
+            Stream<Map.Entry<UUID, Integer>> leaderboard = fCount.entrySet().stream().sorted(Map.Entry.comparingByValue());
+            Map<UUID, Integer> topTen =
+                    fCount.entrySet().stream()
+                            .sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))
+                            .limit(10)
+                            .collect(Collectors.toMap(
+                                    Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
+            StringBuilder output = new StringBuilder();
+            List<UUID> indexList = new ArrayList<>(topTen.keySet()); //only for getting indices
+            topTen.forEach((k, v) -> {
+                output.append("<ac2>").append(indexList.indexOf(k) + 1).append(". <mc>").append(getServer().getOfflinePlayer(k).getName()).append(": <ac>").append(v).append("\n");
+            });
+            Component top10Component = MiniMessage.get().parse(String.valueOf(output), Template.of("mc", messageColor), Template.of("ac", accentColor), Template.of("ac2", accentColor2));
             Component lbMessage = MiniMessage.get().parse(
                     "\n<header> \n<list>", Template.of("header", lbHeader), Template.of("list", top10Component));
             player.sendMessage(lbMessage);
