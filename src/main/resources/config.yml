@@ -31,3 +31,8 @@ error-color: "#F08080"
 # Cooldown Settings
 # Set a cooldown for how often a player can press F (in seconds)
 cooldown: 60
+
+# F Replacement
+# Would you like PressF to automatically replace all instances of "F" or "f" in server chat with a /pressf command?
+# Default: true
+replace-f: true

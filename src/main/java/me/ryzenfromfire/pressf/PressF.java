@@ -14,6 +14,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Logger;
 
 public final class PressF extends JavaPlugin {
 
@@ -54,6 +55,9 @@ public final class PressF extends JavaPlugin {
     }
 
     public ConfigLoader getConfigLoader() { return configLoader; }
+
+    //Temp
+    public Logger getPluginLogger() { return getLogger(); }
 
     @Override
     public void onEnable() {

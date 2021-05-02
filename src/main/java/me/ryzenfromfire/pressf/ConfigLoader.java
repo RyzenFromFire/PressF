@@ -14,6 +14,7 @@ public class ConfigLoader {
     private Component prefix, fKey, leaderboardHeader;
     private String messageColor, accentColor, accentColor2, errorColor;
     private long cooldown;
+    private boolean replaceF;
 
     public ConfigLoader(PressF plugin) {
         this.plugin = plugin;
@@ -32,6 +33,7 @@ public class ConfigLoader {
         this.accentColor2 = "<" + config.getString("accent-color-2") + ">";
         this.errorColor = "<" + config.getString("error-color") + ">";
         this.cooldown = config.getLong("cooldown");
+        this.replaceF = config.getBoolean("replace-f");
     }
 
     public Component getPrefix() { return this.prefix; }
@@ -64,6 +66,8 @@ public class ConfigLoader {
     public String getRawString(String key) {
         return plugin.getConfig().getString(key);
     }
+
+    public boolean doReplaceF() { return this.replaceF; }
 
     public void reloadConfig() {
         plugin.reloadConfig();
