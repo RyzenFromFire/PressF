@@ -58,9 +58,6 @@ public final class PressF extends JavaPlugin {
 
     public ConfigLoader getConfigLoader() { return configLoader; }
 
-    //Temp
-    public Logger getPluginLogger() { return getLogger(); }
-
     @Override
     public void onEnable() {
         // Plugin startup logic
@@ -79,7 +76,7 @@ public final class PressF extends JavaPlugin {
         // Plugin shutdown logic
         getLogger().info("Saving data...");
         data.save(fCount);
-        getLogger().info("Saved data, shutting down.");
+        getLogger().info("Data saved, shutting down.");
     }
 
     @Override

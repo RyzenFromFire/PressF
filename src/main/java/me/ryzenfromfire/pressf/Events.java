@@ -22,9 +22,7 @@ public class Events implements Listener {
 
     @EventHandler
     public void onChat(AsyncChatEvent event) {
-        plugin.getPluginLogger().info("Chat event fired. Msg: " + PlainComponentSerializer.plain().serialize(event.message()));
         if (replaceF && PlainComponentSerializer.plain().serialize(event.message()).equalsIgnoreCase("F")) {
-            plugin.getPluginLogger().info("Replacing F.");
             //if enabled and chat message is only an "F", replace
             event.setCancelled(true);
             Bukkit.getScheduler().runTask( this.plugin, () -> Bukkit.dispatchCommand(event.getPlayer(), "pressf"));
