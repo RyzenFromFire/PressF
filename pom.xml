@@ -6,7 +6,7 @@
 
     <groupId>me.ryzenfromfire</groupId>
     <artifactId>PressF</artifactId>
-    <version>1.0-HOTFIX</version>
+    <version>1.0.1</version>
     <packaging>jar</packaging>
 
     <name>PressF</name>

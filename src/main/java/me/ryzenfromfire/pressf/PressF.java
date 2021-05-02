@@ -19,6 +19,7 @@ public final class PressF extends JavaPlugin {
 
     private ConfigLoader configLoader;
     private CooldownManager cooldownManager;
+    private Events events;
     private Data data;
 
     private final Map<UUID, Integer> fCount = new HashMap<>();
@@ -58,7 +59,8 @@ public final class PressF extends JavaPlugin {
     public void onEnable() {
         // Plugin startup logic
         getLogger().info("Pressing the start button (not F).");
-        this.getServer().getPluginManager().registerEvents(new Events(), this);
+        this.events = new Events();
+        this.getServer().getPluginManager().registerEvents(events, this);
         this.configLoader = new ConfigLoader(this);
         this.cooldownManager = new CooldownManager(this);
         getComponents();
@@ -85,11 +87,10 @@ public final class PressF extends JavaPlugin {
         //   PRESSF
         //
         if (command.getName().equals("pressf") && sender instanceof Player) { //PLAYER
-            Events events = new Events();
+            Player player = (Player) sender, lastDeath = events.getLastDeath(), lastMessenger = events.getLastMessenger();
 
-            Player player = (Player) sender;
-
-            Player lastMessenger = events.getLastMessenger();
+            long lastMessageTime = events.getLastMessageTime(), lastDeathTime = events.getLastDeathTime();
+            getLogger().info("msg: " + lastMessageTime + " death: " + lastDeathTime);
 
             //check if player is on cooldown
             //first check if player has a cooldown, if not, init to 0
@@ -127,7 +128,18 @@ public final class PressF extends JavaPlugin {
                 targetId = Bukkit.getOfflinePlayer(args[0]).getUniqueId();
                 targetName = Bukkit.getOfflinePlayer(args[0]).getName();
 
-            } else if (lastMessenger != null) {
+            } else if (lastDeath != null && lastDeathTime > lastMessageTime) { //verify validity and more recent than last message
+                //check data
+                if (noData(lastDeath.getName())) {
+                    player.sendMessage(invalidTarget);
+                    return true;
+                }
+
+                //set target
+                targetId = lastDeath.getUniqueId();
+                targetName = lastDeath.getName();
+
+            } else if (lastMessenger != null && lastMessageTime > lastDeathTime) { //verify validity and more recent than last death
                 //if not set target to last person to send a message
 
                 //check data
@@ -272,8 +284,8 @@ public final class PressF extends JavaPlugin {
             }
             StringBuilder top10 = new StringBuilder();
             int iLimit = Math.min(playerList.size(), 10);
-            for (int i = 0; i < iLimit; i++) {
-                top10.append("<ac2>").append(String.valueOf(i + 1)).append(". <mc>").append(playerList.get(i)).append("\n");
+            for (int i = iLimit; i > 0; i--) {
+                top10.append("<ac2>").append(String.valueOf((iLimit - i) + 1)).append(". <mc>").append(playerList.get(i - 1)).append("\n");
             }
             Component top10Component = MiniMessage.get().parse(top10.toString(), Template.of("mc", messageColor), Template.of("ac", accentColor), Template.of("ac2", accentColor2));
             Component lbMessage = MiniMessage.get().parse(

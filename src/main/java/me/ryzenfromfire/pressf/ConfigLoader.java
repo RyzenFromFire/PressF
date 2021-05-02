@@ -29,6 +29,7 @@ public class ConfigLoader {
         this.leaderboardHeader = MiniMessage.get().parse(config.getString("leaderboard-header"));
         this.messageColor = "<" + config.getString("message-color") + ">";
         this.accentColor = "<" + config.getString("accent-color") + ">";
+        this.accentColor2 = "<" + config.getString("accent-color-2") + ">";
         this.errorColor = "<" + config.getString("error-color") + ">";
         this.cooldown = config.getLong("cooldown");
     }
