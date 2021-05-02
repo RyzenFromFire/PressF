@@ -59,10 +59,10 @@ public final class PressF extends JavaPlugin {
     public void onEnable() {
         // Plugin startup logic
         getLogger().info("Pressing the start button (not F).");
-        this.events = new Events();
-        this.getServer().getPluginManager().registerEvents(events, this);
         this.configLoader = new ConfigLoader(this);
         this.cooldownManager = new CooldownManager(this);
+        this.events = new Events(this);
+        this.getServer().getPluginManager().registerEvents(events, this);
         getComponents();
         this.data = new Data(this);
         data.load(fCount);
@@ -90,7 +90,6 @@ public final class PressF extends JavaPlugin {
             Player player = (Player) sender, lastDeath = events.getLastDeath(), lastMessenger = events.getLastMessenger();
 
             long lastMessageTime = events.getLastMessageTime(), lastDeathTime = events.getLastDeathTime();
-            getLogger().info("msg: " + lastMessageTime + " death: " + lastDeathTime);
 
             //check if player is on cooldown
             //first check if player has a cooldown, if not, init to 0
