@@ -264,11 +264,11 @@ public final class PressF extends JavaPlugin {
         //
         if (command.getName().equals("pressftop") && sender instanceof Player) {
             Player player = (Player) sender;
-            Map<UUID, Integer> leaderboard = new TreeMap<>();
-            fCount.forEach(leaderboard::put);
+            Map<Integer, UUID> leaderboard = new TreeMap<>();
+            fCount.forEach((k, v) -> { leaderboard.put(v, k); });
             List<String> playerList = new ArrayList<>();
-            for (Map.Entry<UUID, Integer> entry : leaderboard.entrySet()) {
-                playerList.add(getServer().getOfflinePlayer(entry.getKey()).getName() + ": <ac>" + String.valueOf(entry.getValue()));
+            for (Map.Entry<Integer, UUID> entry : leaderboard.entrySet()) {
+                playerList.add(getServer().getOfflinePlayer(entry.getValue()).getName() + ": <ac>" + String.valueOf(entry.getKey()));
             }
             StringBuilder top10 = new StringBuilder();
             int iLimit = Math.min(playerList.size(), 10);
