@@ -21,3 +21,4 @@ commands:
     description: Handles admin commands, like reloading the config.
     usage: /pfadmin <reload | load | save>
     permission: pressf.admin
+softdepend: [ProtocolLib]

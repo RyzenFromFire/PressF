@@ -1,5 +1,7 @@
 package me.ryzenfromfire.pressf;
 
+import com.comphenix.protocol.ProtocolLibrary;
+import com.comphenix.protocol.ProtocolManager;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.minimessage.Template;
@@ -31,6 +33,8 @@ public final class PressF extends JavaPlugin {
     public Map<UUID, Integer> get_fCount() {
         return fCount;
     }
+    public Boolean protocolLibHook = false;
+    private ProtocolManager protocolManager;
 
     private boolean noData(String targetName) { //Checks if the given target has any data stored and if they have played before.
         OfflinePlayer target = Bukkit.getOfflinePlayer(targetName);
@@ -57,6 +61,8 @@ public final class PressF extends JavaPlugin {
 
     public ConfigLoader getConfigLoader() { return configLoader; }
 
+    public ProtocolManager getProtocolManager() { return protocolManager; }
+
     @Override
     public void onEnable() {
         // Plugin startup logic
@@ -68,6 +74,13 @@ public final class PressF extends JavaPlugin {
         getComponents();
         this.data = new Data(this);
         data.load(fCount);
+        if (getServer().getPluginManager().getPlugin("ProtocolLib") != null) {
+            protocolLibHook = true;
+            protocolManager = ProtocolLibrary.getProtocolManager();
+            getLogger().info("Hooked into ProtocolLib.");
+        } else {
+            getLogger().info("ProtocolLib not found.");
+        }
     }
 
     @Override
