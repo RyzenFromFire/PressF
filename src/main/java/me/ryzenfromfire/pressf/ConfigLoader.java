@@ -13,8 +13,8 @@ public class ConfigLoader {
 
     private Component prefix, fKey, leaderboardHeader;
     private String messageColor, accentColor, accentColor2, errorColor;
-    private long cooldown;
-    private boolean replaceF;
+    private long cooldown, lbPageEntries;
+    private boolean lbHeaderEnabled, lbNextPgMsgEnabled, replaceF;
 
     public ConfigLoader(PressF plugin) {
         this.plugin = plugin;
@@ -28,6 +28,9 @@ public class ConfigLoader {
         this.prefix = MiniMessage.get().parse(config.getString("prefix"));
         this.fKey = MiniMessage.get().parse(config.getString("fkey"));
         this.leaderboardHeader = MiniMessage.get().parse(config.getString("leaderboard-header"));
+        this.lbHeaderEnabled = config.getBoolean("lb-header-enabled");
+        this.lbNextPgMsgEnabled = config.getBoolean("lb-next-page-msg-enabled");
+        this.lbPageEntries = config.getLong("lb-entries-per-page");
         this.messageColor = "<" + config.getString("message-color") + ">";
         this.accentColor = "<" + config.getString("accent-color") + ">";
         this.accentColor2 = "<" + config.getString("accent-color-2") + ">";
@@ -41,6 +44,12 @@ public class ConfigLoader {
     public Component getFKey() { return this.fKey; }
 
     public Component getLBHeader() { return this.leaderboardHeader; }
+
+    public boolean getLBHeaderEnabled() { return this.lbHeaderEnabled; }
+
+    public boolean getLBNextPgMsgEnabled() { return this.lbNextPgMsgEnabled; }
+
+    public long getLBPageEntries() { return this.lbPageEntries; }
 
     public enum colorType {
         message, accent, accent2, error

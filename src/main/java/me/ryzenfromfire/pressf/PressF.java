@@ -320,18 +320,58 @@ public final class PressF extends JavaPlugin {
         if (command.getName().equals("pressftop") && sender instanceof Player) {
             Player player = (Player) sender;
 
-            Map<UUID, Integer> topTen =
+            Map<UUID, Integer> leaderboard =
                     fCount.entrySet().stream()
                             .sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))
-                            .limit(10)
                             .collect(Collectors.toMap(
                                     Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
+
+            final double entriesPerPage = configLoader.getLBPageEntries();
+            int page = 0;
+            final int maxPages = (int) Math.ceil(leaderboard.size() / entriesPerPage);
+
+            if(args.length > 0) { //determine correct page to view based on argument, and make sure argument is actually a number
+                int i = Integer.parseInt(args[0]);
+                if (i > 0 && i <= maxPages) {
+                    page = i - 1;
+                }
+            }
+
             StringBuilder output = new StringBuilder();
-            List<UUID> indexList = new ArrayList<>(topTen.keySet()); //only for getting indices
-            topTen.forEach((k, v) -> output.append("<ac2>").append(indexList.indexOf(k) + 1).append(". <mc>").append(getServer().getOfflinePlayer(k).getName()).append(": <ac>").append(v).append("\n"));
-            Component top10Component = MiniMessage.get().parse(String.valueOf(output), Template.of("mc", messageColor), Template.of("ac", accentColor), Template.of("ac2", accentColor2));
+            List<UUID> indexList = new ArrayList<>(leaderboard.keySet()); //only for getting indices
+            int startPos = page * (int) entriesPerPage; //number of the first entry on the selected leaderboard page
+            int limit = startPos + (int) entriesPerPage;
+            if(leaderboard.size() < limit) { limit = leaderboard.size(); }
+
+            for(int i = startPos; i < limit; i++) {
+                //Get Key and Value
+                UUID k = indexList.get(i);
+                Integer v = leaderboard.get(k);
+
+                //Construct entries for the appropriate page
+                output.append("<ac2>").append(i + 1).append(". <mc>")
+                    .append(getServer().getOfflinePlayer(k).getName())
+                    .append(": <ac>").append(v);
+                if(i < limit - 1) {
+                    output.append("\n");
+                }
+            }
+
+            StringBuilder lbMessageBuilder = new StringBuilder();
+            if(lbHeader != null && configLoader.getLBHeaderEnabled()) {
+                lbMessageBuilder.append("<header>");
+            }
+            lbMessageBuilder.append("\n<list>");
+            if(configLoader.getLBNextPgMsgEnabled() && (page + 2) <= maxPages) {
+                lbMessageBuilder.append("\n<npm>");
+            }
+
+            Component pageComponent = MiniMessage.get().parse(String.valueOf(output),
+                    Template.of("mc", messageColor), Template.of("ac", accentColor), Template.of("ac2", accentColor2));
+            Component nextPageMsg = MiniMessage.get().parse("<mc>Type <ac>/pftop <next> <mc>to see the next page.",
+                    Template.of("mc", messageColor), Template.of("ac", accentColor), Template.of("next", String.valueOf(page + 2)));
             Component lbMessage = MiniMessage.get().parse(
-                    "\n<header> \n<list>", Template.of("header", lbHeader), Template.of("list", top10Component));
+                    String.valueOf(lbMessageBuilder), Template.of("header", lbHeader), Template.of("list", pageComponent), Template.of("npm", nextPageMsg));
             player.sendMessage(lbMessage);
             return true;
         } else if (command.getName().equals("pressftop") && !(sender instanceof Player)) { //CONSOLE

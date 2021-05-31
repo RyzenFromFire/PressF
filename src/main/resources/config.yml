@@ -13,6 +13,16 @@ fkey: "<#2e2d2b>[<#edebe6><bold>F</bold><#2e2d2b>]<reset>"
 # Customize leaderboard header
 leaderboard-header: " <#a19e97>-=- <#2e2d2b>[<#edebe6><bold>F</bold><#2e2d2b>]<reset> <#a4c0db>Leaderboard <#a19e97>-=- "
 
+# Enable leaderboard header
+lb-header-enabled: true
+
+# Enable leaderboard next page message
+lb-next-page-msg-enabled: true
+
+# Customize number of entries per leaderboard page (default: 8)
+# Recommended to leave default, should not exceed 10.
+lb-entries-per-page: 8
+
 # Message Text Color
 # Format as hex value, ex. #000000
 
