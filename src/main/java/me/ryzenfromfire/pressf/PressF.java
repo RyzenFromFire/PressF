@@ -317,9 +317,7 @@ public final class PressF extends JavaPlugin {
         //
         // PFTOP | F LEADERBOARD
         //
-        if (command.getName().equals("pressftop") && sender instanceof Player) {
-            Player player = (Player) sender;
-
+        if (command.getName().equals("pressftop")) {
             Map<UUID, Integer> leaderboard =
                     fCount.entrySet().stream()
                             .sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))
@@ -358,6 +356,7 @@ public final class PressF extends JavaPlugin {
             }
 
             StringBuilder lbMessageBuilder = new StringBuilder();
+            if (!(sender instanceof Player)) { lbMessageBuilder.append("\n"); }
             if(lbHeader != null && configLoader.getLBHeaderEnabled()) {
                 lbMessageBuilder.append("<header>");
             }
@@ -372,10 +371,7 @@ public final class PressF extends JavaPlugin {
                     Template.of("mc", messageColor), Template.of("ac", accentColor), Template.of("next", String.valueOf(page + 2)));
             Component lbMessage = MiniMessage.get().parse(
                     String.valueOf(lbMessageBuilder), Template.of("header", lbHeader), Template.of("list", pageComponent), Template.of("npm", nextPageMsg));
-            player.sendMessage(lbMessage);
-            return true;
-        } else if (command.getName().equals("pressftop") && !(sender instanceof Player)) { //CONSOLE
-            getLogger().info("You cannot view the F leaderboard from the console.");
+            sender.sendMessage(lbMessage);
             return true;
         }
 
