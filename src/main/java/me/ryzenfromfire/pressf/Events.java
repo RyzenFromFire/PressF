@@ -22,14 +22,16 @@ public class Events implements Listener {
 
     @EventHandler
     public void onChat(AsyncChatEvent event) {
-        if (replaceF && PlainComponentSerializer.plain().serialize(event.message()).equalsIgnoreCase("F")) {
-            //if enabled and chat message is only an "F", replace
-            event.setCancelled(true);
-            Bukkit.getScheduler().runTask( this.plugin, () -> Bukkit.dispatchCommand(event.getPlayer(), "pressf"));
-        } else {
-            //otherwise treat as normal chat message and record player and time
-            lastMessenger = event.getPlayer();
-            lastMessageTime = System.currentTimeMillis();
+        if (!(plugin.protocolLibHook)) {
+            if (replaceF && PlainComponentSerializer.plain().serialize(event.message()).equalsIgnoreCase("F")) {
+                //if enabled and chat message is only an "F", replace
+                event.setCancelled(true);
+                Bukkit.getScheduler().runTask( this.plugin, () -> Bukkit.dispatchCommand(event.getPlayer(), "pressf"));
+            } else if (!event.isCancelled()) { //should prevent recording if the message was cancelled in another way
+                //otherwise treat as normal chat message and record player and time
+                lastMessenger = event.getPlayer();
+                lastMessageTime = System.currentTimeMillis();
+            }
         }
     }
 
@@ -46,4 +48,8 @@ public class Events implements Listener {
     public Player getLastDeath() { return lastDeath; }
 
     public long getLastDeathTime() { return lastDeathTime; }
+
+    public void setLastMessenger(Player player) { lastMessenger = player; }
+
+    public void setLastMessageTime(long time) { lastMessageTime = time; }
 }

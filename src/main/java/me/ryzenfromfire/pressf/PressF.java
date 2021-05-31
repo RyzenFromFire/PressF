@@ -1,5 +1,12 @@
 package me.ryzenfromfire.pressf;
 
+import com.comphenix.protocol.PacketType;
+import com.comphenix.protocol.ProtocolLibrary;
+import com.comphenix.protocol.ProtocolManager;
+import com.comphenix.protocol.events.ListenerPriority;
+import com.comphenix.protocol.events.PacketAdapter;
+import com.comphenix.protocol.events.PacketContainer;
+import com.comphenix.protocol.events.PacketEvent;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.minimessage.Template;
@@ -9,12 +16,12 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 import java.util.concurrent.TimeUnit;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -32,6 +39,8 @@ public final class PressF extends JavaPlugin {
     public Map<UUID, Integer> get_fCount() {
         return fCount;
     }
+    public Boolean protocolLibHook = false;
+    private ProtocolManager protocolManager;
 
     private boolean noData(String targetName) { //Checks if the given target has any data stored and if they have played before.
         OfflinePlayer target = Bukkit.getOfflinePlayer(targetName);
@@ -58,6 +67,8 @@ public final class PressF extends JavaPlugin {
 
     public ConfigLoader getConfigLoader() { return configLoader; }
 
+    public ProtocolManager getProtocolManager() { return protocolManager; }
+
     @Override
     public void onEnable() {
         // Plugin startup logic
@@ -69,6 +80,38 @@ public final class PressF extends JavaPlugin {
         getComponents();
         this.data = new Data(this);
         data.load(fCount);
+        if (getServer().getPluginManager().getPlugin("ProtocolLib") != null) {
+            protocolLibHook = true;
+            protocolManager = ProtocolLibrary.getProtocolManager();
+            getLogger().info("Hooked into ProtocolLib.");
+        } else {
+            getLogger().info("ProtocolLib not found.");
+        }
+        if (protocolLibHook) {
+            ProtocolManager protocolManager = getProtocolManager();
+            if (protocolManager == null) {
+                getLogger().severe("ERROR: ProtocolLib Hook failed (null).");
+            } else {
+                protocolManager.addPacketListener(new PacketAdapter((Plugin) this,
+                        ListenerPriority.NORMAL,
+                        PacketType.Play.Client.CHAT) {
+                    @Override
+                    public void onPacketReceiving(PacketEvent event) {
+                        if (event.getPacketType() == PacketType.Play.Client.CHAT) {
+                            PacketContainer packet = event.getPacket();
+                            String message = packet.getStrings().read(0);
+                            if (message.equalsIgnoreCase("F")) {
+                                event.setCancelled(true);
+                                Bukkit.getScheduler().runTask(this.plugin, () -> Bukkit.dispatchCommand(event.getPlayer(), "pressf"));
+                            } else {
+                                events.setLastMessenger(event.getPlayer());
+                                events.setLastMessageTime(System.currentTimeMillis());
+                            }
+                        }
+                    }
+                });
+            }
+        } //end PL Hook
     }
 
     @Override
