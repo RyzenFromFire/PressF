@@ -16,10 +16,8 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
-
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -42,6 +40,7 @@ public final class PressF extends JavaPlugin {
     public Boolean protocolLibHook = false;
     private ProtocolManager protocolManager;
 
+    @SuppressWarnings("deprecation")
     private boolean noData(String targetName) { //Checks if the given target has any data stored and if they have played before.
         OfflinePlayer target = Bukkit.getOfflinePlayer(targetName);
         if (fCount.get(target.getUniqueId()) == null) {
@@ -92,7 +91,7 @@ public final class PressF extends JavaPlugin {
             if (protocolManager == null) {
                 getLogger().severe("ERROR: ProtocolLib Hook failed (null).");
             } else {
-                protocolManager.addPacketListener(new PacketAdapter((Plugin) this,
+                protocolManager.addPacketListener(new PacketAdapter(this,
                         ListenerPriority.NORMAL,
                         PacketType.Play.Client.CHAT) {
                     @Override
@@ -123,6 +122,7 @@ public final class PressF extends JavaPlugin {
     }
 
     @Override
+    @SuppressWarnings("deprecation")
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
         //Global Command Components
         Component invalidTarget = MiniMessage.get().parse("<prefix> <ec>Error: Invalid target. Please provide the name of a valid player.",
@@ -233,11 +233,9 @@ public final class PressF extends JavaPlugin {
                 //send global server message of the pressed F
                 String actualTargetName = targetName;
                 if (targetName.equals(player.getName())) { targetName = "themself"; }
-                String hoverText = "<mc>Click to press " + configLoader.getRawString("fkey") + " for <ac><aTarget><mc>!"; //hover text hates components
-                Component pressedF = MiniMessage.get().parse("<hover:show_text:'<hoverText>'>" +
+                Component pressedF = MiniMessage.get().parse("<hover:show_text:'<mc>Click to press <fKey> for <ac><aTarget><mc>!'>" +
                                 "<click:run_command:/pressf <aTarget> false>" +
                                 "<prefix> <ac><player> <mc>pressed <fKey> <mc>to pay respects to <ac><target><mc>.</hover></click>",
-                        Template.of("hoverText", hoverText),
                         Template.of("prefix", prefix),
                         Template.of("mc", messageColor),
                         Template.of("ac", accentColor),
@@ -322,7 +320,6 @@ public final class PressF extends JavaPlugin {
         if (command.getName().equals("pressftop") && sender instanceof Player) {
             Player player = (Player) sender;
 
-            Stream<Map.Entry<UUID, Integer>> leaderboard = fCount.entrySet().stream().sorted(Map.Entry.comparingByValue());
             Map<UUID, Integer> topTen =
                     fCount.entrySet().stream()
                             .sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))
@@ -331,9 +328,7 @@ public final class PressF extends JavaPlugin {
                                     Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
             StringBuilder output = new StringBuilder();
             List<UUID> indexList = new ArrayList<>(topTen.keySet()); //only for getting indices
-            topTen.forEach((k, v) -> {
-                output.append("<ac2>").append(indexList.indexOf(k) + 1).append(". <mc>").append(getServer().getOfflinePlayer(k).getName()).append(": <ac>").append(v).append("\n");
-            });
+            topTen.forEach((k, v) -> output.append("<ac2>").append(indexList.indexOf(k) + 1).append(". <mc>").append(getServer().getOfflinePlayer(k).getName()).append(": <ac>").append(v).append("\n"));
             Component top10Component = MiniMessage.get().parse(String.valueOf(output), Template.of("mc", messageColor), Template.of("ac", accentColor), Template.of("ac2", accentColor2));
             Component lbMessage = MiniMessage.get().parse(
                     "\n<header> \n<list>", Template.of("header", lbHeader), Template.of("list", top10Component));
