@@ -24,32 +24,6 @@ public class Events implements Listener {
     public Events(PressF plugin) {
         this.plugin = plugin;
         replaceF = plugin.getConfigLoader().doReplaceF();
-        if (plugin.protocolLibHook) {
-            ProtocolManager protocolManager = plugin.getProtocolManager();
-            if (protocolManager == null) {
-                plugin.getLogger().severe("ERROR: ProtocolLib Hook failed (null).");
-            } else {
-                protocolManager.addPacketListener(new PacketAdapter((Plugin) this,
-                        ListenerPriority.NORMAL,
-                        PacketType.Play.Client.CHAT) {
-                    @Override
-                    public void onPacketReceiving(PacketEvent event) {
-                        if (event.getPacketType() == PacketType.Play.Client.CHAT) {
-                            PacketContainer packet = event.getPacket();
-                            String message = packet.getStrings().read(0);
-
-                            if (message.equalsIgnoreCase("F")) {
-                                event.setCancelled(true);
-                                Bukkit.getScheduler().runTask(this.plugin, () -> Bukkit.dispatchCommand(event.getPlayer(), "pressf"));
-                            } else {
-                                lastMessenger = event.getPlayer();
-                                lastMessageTime = System.currentTimeMillis();
-                            }
-                        }
-                    }
-                });
-            }
-        } //end PL Hook
     }
 
     @EventHandler
@@ -80,4 +54,8 @@ public class Events implements Listener {
     public Player getLastDeath() { return lastDeath; }
 
     public long getLastDeathTime() { return lastDeathTime; }
+
+    public void setLastMessenger(Player player) { lastMessenger = player; }
+
+    public void setLastMessageTime(long time) { lastMessageTime = time; }
 }
