@@ -9,7 +9,9 @@ import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.events.PacketEvent;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
-import net.kyori.adventure.text.minimessage.Template;
+import static net.kyori.adventure.text.minimessage.MiniMessage.miniMessage;
+import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
+import net.kyori.adventure.text.minimessage.tag.standard.StandardTags;
 import net.kyori.adventure.text.serializer.plain.PlainComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
@@ -21,7 +23,6 @@ import org.jetbrains.annotations.NotNull;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public final class PressF extends JavaPlugin {
 
@@ -40,7 +41,14 @@ public final class PressF extends JavaPlugin {
     public Boolean protocolLibHook = false;
     private ProtocolManager protocolManager;
 
-    @SuppressWarnings("deprecation")
+    private MiniMessage mmsg = MiniMessage.builder()
+            .tags(TagResolver.builder()
+                    .resolver(StandardTags.defaults())
+                    .resolver()
+                    .build()
+                 )
+            .build();
+
     private boolean noData(String targetName) { //Checks if the given target has any data stored and if they have played before.
         OfflinePlayer target = Bukkit.getOfflinePlayer(targetName);
         if (fCount.get(target.getUniqueId()) == null) {

@@ -1,7 +1,7 @@
 name: PressF
 version: ${project.version}
 main: me.ryzenfromfire.pressf.PressF
-api-version: 1.16
+api-version: 1.18
 authors: [ RyzenFromFire ]
 description: PressF is a Minecraft plugin that allows users to press F to pay respects.
 commands:
