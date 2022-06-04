@@ -239,7 +239,7 @@ public final class PressF extends JavaPlugin {
                 if (targetName.equals(player.getName())) { targetName = "themself"; }
                 Component pressedF = mmsg.deserialize("<hover:show_text:'<mc>Click to press <f_key> for <ac><a_target><mc>!'>" +
                                 "<click:run_command:/pressf <a_target> false>" +
-                                "<prefix> <ac><player> <mc>pressed <f_key> <mc>to pay respects to <ac><target><mc>.</hover></click>",
+                                "<prefix> <ac><player> <mc>pressed <f_key> <mc>to pay respects to <ac><target><mc>.</click></hover>",
                         Placeholder.parsed("player", player.getName()),
                         Placeholder.parsed("target", targetName),
                         Placeholder.parsed("a_target", actualTargetName));
