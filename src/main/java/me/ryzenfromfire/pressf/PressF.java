@@ -118,9 +118,9 @@ public final class PressF extends JavaPlugin {
                 .tags(TagResolver.builder()
                         .resolver(StandardTags.defaults())
                         .resolver(Placeholder.component("prefix", this.prefix))
-                        .resolver(Placeholder.component("fKey", this.fKey))
+                        .resolver(Placeholder.component("f_key", this.fKey))
                         .resolver(Placeholder.component("header", this.lbHeader))
-                        .resolver(Placeholder.parsed("ac2", "<" + messageColor + ">"))
+                        .resolver(Placeholder.parsed("mc", "<" + messageColor + ">"))
                         .resolver(Placeholder.parsed("ac", "<" + accentColor + ">"))
                         .resolver(Placeholder.parsed("ac2", "<" + accentColor2 + ">"))
                         .resolver(Placeholder.parsed("ec", "<" + errorColor + ">"))
@@ -159,7 +159,7 @@ public final class PressF extends JavaPlugin {
             //is player on cooldown?
             if (TimeUnit.MILLISECONDS.toSeconds(timeSince) < configLoader.getCooldown()) {
                 //time since command used is less than cooldown, command on cooldown
-                Component onCooldown = mmsg.deserialize("<prefix> <ec>You cannot press <fKey> <ec>for another <ac><time> <ec>seconds.",
+                Component onCooldown = mmsg.deserialize("<prefix> <ec>You cannot press <f_key> <ec>for another <ac><time> <ec>seconds.",
                         Placeholder.parsed("time", String.valueOf(configLoader.getCooldown() - TimeUnit.MILLISECONDS.toSeconds(timeSince)))); //convert timeSince to time left to use
                 player.sendMessage(onCooldown);
                 return true;
@@ -229,7 +229,7 @@ public final class PressF extends JavaPlugin {
                     //send message just to player
                     //should only trigger from clicking a global message
                     if (targetName.equals(player.getName())) { targetName = "yourself"; }
-                    Component pressedF = mmsg.deserialize("<prefix> <mc>You pressed <fKey> <mc>to pay respects to <ac><target><mc>.",
+                    Component pressedF = mmsg.deserialize("<prefix> <mc>You pressed <f_key> <mc>to pay respects to <ac><target><mc>.",
                             Placeholder.parsed("target", targetName));
                     player.sendMessage(pressedF);
                 }
@@ -237,12 +237,12 @@ public final class PressF extends JavaPlugin {
                 //send global server message of the pressed F
                 String actualTargetName = targetName;
                 if (targetName.equals(player.getName())) { targetName = "themself"; }
-                Component pressedF = mmsg.deserialize("<hover:show_text:'<mc>Click to press <fKey> for <ac><aTarget><mc>!'>" +
-                                "<click:run_command:/pressf <aTarget> false>" +
-                                "<prefix> <ac><player> <mc>pressed <fKey> <mc>to pay respects to <ac><target><mc>.</hover></click>",
+                Component pressedF = mmsg.deserialize("<hover:show_text:'<mc>Click to press <f_key> for <ac><a_target><mc>!'>" +
+                                "<click:run_command:/pressf <a_target> false>" +
+                                "<prefix> <ac><player> <mc>pressed <f_key> <mc>to pay respects to <ac><target><mc>.</hover></click>",
                         Placeholder.parsed("player", player.getName()),
                         Placeholder.parsed("target", targetName),
-                        Placeholder.parsed("aTarget", actualTargetName));
+                        Placeholder.parsed("a_target", actualTargetName));
                 this.getServer().sendMessage(pressedF);
             }
             return true;
@@ -286,7 +286,7 @@ public final class PressF extends JavaPlugin {
             }
 
             //send message to player
-            Component viewF = mmsg.deserialize("<prefix> <subject> <mc>received <ac><count> <fKey><mc>s.",
+            Component viewF = mmsg.deserialize("<prefix> <subject> <mc>received <ac><count> <f_key><mc>s.",
                     Placeholder.component("subject", subject),
                     Placeholder.parsed("count", String.valueOf(fCount.get(targetId))));
             player.sendMessage(viewF);
