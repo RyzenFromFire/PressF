@@ -9,10 +9,10 @@ import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.events.PacketEvent;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
-import static net.kyori.adventure.text.minimessage.MiniMessage.miniMessage;
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import net.kyori.adventure.text.minimessage.tag.standard.StandardTags;
-import net.kyori.adventure.text.serializer.plain.PlainComponentSerializer;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
@@ -43,10 +43,15 @@ public final class PressF extends JavaPlugin {
 
     private MiniMessage mmsg = MiniMessage.builder()
             .tags(TagResolver.builder()
-                    .resolver(StandardTags.defaults())
-                    .resolver()
-                    .build()
-                 )
+                .resolver(StandardTags.defaults())
+                .resolver(Placeholder.component("prefix", this.prefix))
+                .resolver(Placeholder.component("fKey", this.fKey))
+                .resolver(Placeholder.component("header", this.lbHeader))
+                .resolver(Placeholder.parsed("ac2", "<" + messageColor + ">"))
+                .resolver(Placeholder.parsed("ac", "<" + accentColor + ">"))
+                .resolver(Placeholder.parsed("ac2", "<" + accentColor2 + ">"))
+                .resolver(Placeholder.parsed("ec", "<" + errorColor + ">"))
+                .build())
             .build();
 
     private boolean noData(String targetName) { //Checks if the given target has any data stored and if they have played before.
@@ -130,12 +135,9 @@ public final class PressF extends JavaPlugin {
     }
 
     @Override
-    @SuppressWarnings("deprecation")
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
         //Global Command Components
-        Component invalidTarget = MiniMessage.get().parse("<prefix> <ec>Error: Invalid target. Please provide the name of a valid player.",
-                Template.of("prefix", prefix),
-                Template.of("ec", errorColor));
+        Component invalidTarget = mmsg.deserialize("<prefix> <ec>Error: Invalid target. Please provide the name of a valid player.");
 
         //
         //   PRESSF
@@ -155,12 +157,8 @@ public final class PressF extends JavaPlugin {
             //is player on cooldown?
             if (TimeUnit.MILLISECONDS.toSeconds(timeSince) < configLoader.getCooldown()) {
                 //time since command used is less than cooldown, command on cooldown
-                Component onCooldown = MiniMessage.get().parse("<prefix> <ec>You cannot press <fKey> <ec>for another <ac><time> <ec>seconds.",
-                        Template.of("prefix", prefix),
-                        Template.of("ec", errorColor),
-                        Template.of("ac", accentColor),
-                        Template.of("fKey", fKey),
-                        Template.of("time", String.valueOf(configLoader.getCooldown() - TimeUnit.MILLISECONDS.toSeconds(timeSince)))); //convert timeSince to time left to use
+                Component onCooldown = mmsg.deserialize("<prefix> <ec>You cannot press <fKey> <ec>for another <ac><time> <ec>seconds.",
+                        Placeholder.parsed("time", String.valueOf(configLoader.getCooldown() - TimeUnit.MILLISECONDS.toSeconds(timeSince)))); //convert timeSince to time left to use
                 player.sendMessage(onCooldown);
                 return true;
             } //otherwise continue
@@ -229,28 +227,20 @@ public final class PressF extends JavaPlugin {
                     //send message just to player
                     //should only trigger from clicking a global message
                     if (targetName.equals(player.getName())) { targetName = "yourself"; }
-                    Component pressedF = MiniMessage.get().parse("<prefix> <mc>You pressed <fKey> <mc>to pay respects to <ac><target><mc>.",
-                            Template.of("prefix", prefix),
-                            Template.of("mc", messageColor),
-                            Template.of("ac", accentColor),
-                            Template.of("fKey", fKey),
-                            Template.of("target", targetName));
+                    Component pressedF = mmsg.deserialize("<prefix> <mc>You pressed <fKey> <mc>to pay respects to <ac><target><mc>.",
+                            Placeholder.parsed("target", targetName));
                     player.sendMessage(pressedF);
                 }
             } else {
                 //send global server message of the pressed F
                 String actualTargetName = targetName;
                 if (targetName.equals(player.getName())) { targetName = "themself"; }
-                Component pressedF = MiniMessage.get().parse("<hover:show_text:'<mc>Click to press <fKey> for <ac><aTarget><mc>!'>" +
+                Component pressedF = mmsg.deserialize("<hover:show_text:'<mc>Click to press <fKey> for <ac><aTarget><mc>!'>" +
                                 "<click:run_command:/pressf <aTarget> false>" +
                                 "<prefix> <ac><player> <mc>pressed <fKey> <mc>to pay respects to <ac><target><mc>.</hover></click>",
-                        Template.of("prefix", prefix),
-                        Template.of("mc", messageColor),
-                        Template.of("ac", accentColor),
-                        Template.of("fKey", fKey),
-                        Template.of("player", player.getName()),
-                        Template.of("target", targetName),
-                        Template.of("aTarget", actualTargetName));
+                        Placeholder.parsed("player", player.getName()),
+                        Placeholder.parsed("target", targetName),
+                        Placeholder.parsed("aTarget", actualTargetName));
                 this.getServer().sendMessage(pressedF);
             }
             return true;
@@ -282,25 +272,21 @@ public final class PressF extends JavaPlugin {
                 targetId = Bukkit.getOfflinePlayer(args[0]).getUniqueId();
                 targetName = Bukkit.getOfflinePlayer(args[0]).getName();
 
-                subject = MiniMessage.get().parse("<mc>" + targetName + " has", Template.of("mc", messageColor));
+                subject = mmsg.deserialize("<mc>" + targetName + " has");
             } else {
                 //if not set target to the command sender
                 //should only happen if there has not yet been a message sent
                 targetId = player.getUniqueId();
-                subject = MiniMessage.get().parse("<mc>You have", Template.of("mc", messageColor));
+                subject = mmsg.deserialize("<mc>You have");
 
                 //if player fCount is null, put 0
                 fCount.putIfAbsent(player.getUniqueId(), 0); // no need to check data here since player is always online
             }
 
             //send message to player
-            Component viewF = MiniMessage.get().parse("<prefix> <subject> <mc>received <ac><count> <fKey><mc>s.",
-                    Template.of("prefix", prefix),
-                    Template.of("subject", subject),
-                    Template.of("mc", messageColor),
-                    Template.of("ac", accentColor),
-                    Template.of("fKey", fKey),
-                    Template.of("count", String.valueOf(fCount.get(targetId))));
+            Component viewF = mmsg.deserialize("<prefix> <subject> <mc>received <ac><count> <fKey><mc>s.",
+                    Placeholder.component("subject", subject),
+                    Placeholder.parsed("count", String.valueOf(fCount.get(targetId))));
             player.sendMessage(viewF);
 
             return true;
@@ -373,12 +359,14 @@ public final class PressF extends JavaPlugin {
                 lbMessageBuilder.append("\n<npm>");
             }
 
-            Component pageComponent = MiniMessage.get().parse(String.valueOf(output),
-                    Template.of("mc", messageColor), Template.of("ac", accentColor), Template.of("ac2", accentColor2));
-            Component nextPageMsg = MiniMessage.get().parse("<mc>Type <ac>/pftop <next> <mc>to see the next page.",
-                    Template.of("mc", messageColor), Template.of("ac", accentColor), Template.of("next", String.valueOf(page + 2)));
-            Component lbMessage = MiniMessage.get().parse(
-                    String.valueOf(lbMessageBuilder), Template.of("header", lbHeader), Template.of("list", pageComponent), Template.of("npm", nextPageMsg));
+            Component pageComponent = mmsg.deserialize(String.valueOf(output));
+
+            Component nextPageMsg = mmsg.deserialize("<mc>Type <ac>/pftop <next> <mc>to see the next page.",
+                    Placeholder.parsed("next", String.valueOf(page + 2)));
+
+            Component lbMessage = mmsg.deserialize(
+                    String.valueOf(lbMessageBuilder), Placeholder.component("list", pageComponent), Placeholder.component("npm", nextPageMsg));
+
             sender.sendMessage(lbMessage);
             return true;
         }
@@ -387,67 +375,58 @@ public final class PressF extends JavaPlugin {
         // PFADMIN
         //
         if (command.getName().equals("pfadmin") && sender.hasPermission("pressf.admin")) {
-            Component usage = MiniMessage.get().parse("<mc>Usage: /pfadmin <ac><reload | load | save>", Template.of("mc", messageColor), Template.of("ac", accentColor));
-            Component reloadingMsg = MiniMessage.get().parse("<mc>Reloaded config file.", Template.of("mc", messageColor));
-            Component saved = MiniMessage.get().parse("<mc>Saved data to file.", Template.of("mc", messageColor));
-            Component loaded = MiniMessage.get().parse("<mc>Loaded data from file.", Template.of("mc", messageColor));
+            Component usage = mmsg.deserialize("<mc>Usage: /pfadmin <ac><reload | load | save>");
+            Component reloadingMsg = mmsg.deserialize("<mc>Reloaded config file.");
+            Component saved = mmsg.deserialize("<mc>Saved data to file.");
+            Component loaded = mmsg.deserialize("<mc>Loaded data from file.");
 
             if (args.length == 0) {
                 if (sender instanceof Player) {
                     Player player = (Player) sender;
-                    player.sendMessage(MiniMessage.get().parse("<prefix> <usage>",
-                            Template.of("prefix", prefix),
-                            Template.of("usage", usage)));
+                    player.sendMessage(mmsg.deserialize("<prefix> <usage>", Placeholder.component("usage", usage)));
                 } else {
-                    getLogger().info(PlainComponentSerializer.plain().serialize(usage));
+                    getLogger().info(PlainTextComponentSerializer.plainText().serialize(usage));
                 }
                 return true;
             } else {
                 switch (args[0]) {
-                    case "reload":
+                    case "reload" -> {
                         configLoader.reloadConfig();
                         getComponents();
 
                         //send message reloading is complete.
                         if (sender instanceof Player) {
                             Player player = (Player) sender;
-                            player.sendMessage(MiniMessage.get().parse("<prefix> <reload>",
-                                    Template.of("prefix", prefix),
-                                    Template.of("reload", reloadingMsg)));
+                            player.sendMessage(mmsg.deserialize("<prefix> <reload>", Placeholder.component("reload", reloadingMsg)));
                         } else {
-                            getLogger().info(PlainComponentSerializer.plain().serialize(reloadingMsg));
+                            getLogger().info(PlainTextComponentSerializer.plainText().serialize(reloadingMsg));
                         }
-
                         return true;
-
-                    case "load":
+                    }
+                    case "load" -> {
                         data.load(fCount);
 
                         //send message loading data is complete
                         if (sender instanceof Player) {
                             Player player = (Player) sender;
-                            player.sendMessage(MiniMessage.get().parse("<prefix> <loaded>",
-                                    Template.of("prefix", prefix),
-                                    Template.of("loaded", loaded)));
+                            player.sendMessage(mmsg.deserialize("<prefix> <loaded>", Placeholder.component("loaded", loaded)));
                         } else {
-                            getLogger().info(PlainComponentSerializer.plain().serialize(loaded));
+                            getLogger().info(PlainTextComponentSerializer.plainText().serialize(loaded));
                         }
                         return true;
-
-                    case "save":
+                    }
+                    case "save" -> {
                         data.save(fCount);
 
                         //send message saving data is complete
                         if (sender instanceof Player) {
                             Player player = (Player) sender;
-                            player.sendMessage(MiniMessage.get().parse("<prefix> <saved>",
-                                    Template.of("prefix", prefix),
-                                    Template.of("saved", saved)));
+                            player.sendMessage(mmsg.deserialize("<prefix> <saved>", Placeholder.component("saved", saved)));
                         } else {
-                            getLogger().info(PlainComponentSerializer.plain().serialize(saved));
+                            getLogger().info(PlainTextComponentSerializer.plainText().serialize(saved));
                         }
-
                         return true;
+                    }
                 }
             }
         }
