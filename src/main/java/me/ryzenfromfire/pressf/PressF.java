@@ -120,10 +120,10 @@ public final class PressF extends JavaPlugin {
                         .resolver(Placeholder.component("prefix", this.prefix))
                         .resolver(Placeholder.component("f_key", this.fKey))
                         .resolver(Placeholder.component("header", this.lbHeader))
-                        .resolver(Placeholder.parsed("mc", "<" + messageColor + ">"))
-                        .resolver(Placeholder.parsed("ac", "<" + accentColor + ">"))
-                        .resolver(Placeholder.parsed("ac2", "<" + accentColor2 + ">"))
-                        .resolver(Placeholder.parsed("ec", "<" + errorColor + ">"))
+                        .resolver(Placeholder.parsed("mc", messageColor))
+                        .resolver(Placeholder.parsed("ac", accentColor))
+                        .resolver(Placeholder.parsed("ac2", accentColor2))
+                        .resolver(Placeholder.parsed("ec", errorColor))
                         .build())
                 .build();
     }
