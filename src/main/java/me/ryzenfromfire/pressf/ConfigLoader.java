@@ -5,6 +5,7 @@ import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.configuration.file.FileConfiguration;
 
 import java.io.File;
+import java.util.Objects;
 
 
 public class ConfigLoader {
@@ -25,9 +26,9 @@ public class ConfigLoader {
     private void loadConfig() {
         FileConfiguration config = plugin.getConfig();
 
-        this.prefix = MiniMessage.get().parse(config.getString("prefix"));
-        this.fKey = MiniMessage.get().parse(config.getString("fkey"));
-        this.leaderboardHeader = MiniMessage.get().parse(config.getString("leaderboard-header"));
+        this.prefix = MiniMessage.miniMessage().deserialize(Objects.requireNonNull(config.getString("prefix")));
+        this.fKey = MiniMessage.miniMessage().deserialize(Objects.requireNonNull(config.getString("fkey")));
+        this.leaderboardHeader = MiniMessage.miniMessage().deserialize(Objects.requireNonNull(config.getString("leaderboard-header")));
         this.lbHeaderEnabled = config.getBoolean("lb-header-enabled");
         this.lbNextPgMsgEnabled = config.getBoolean("lb-next-page-msg-enabled");
         this.lbPageEntries = config.getLong("lb-entries-per-page");
