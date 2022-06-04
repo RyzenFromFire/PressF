@@ -211,7 +211,7 @@ public final class PressF extends JavaPlugin {
                 // check data
                 fCount.putIfAbsent(player.getUniqueId(), 0);
 
-                //set target
+                // set target
                 targetId = player.getUniqueId();
                 targetName = player.getName();
             }
