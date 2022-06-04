@@ -41,18 +41,7 @@ public final class PressF extends JavaPlugin {
     public Boolean protocolLibHook = false;
     private ProtocolManager protocolManager;
 
-    private MiniMessage mmsg = MiniMessage.builder()
-            .tags(TagResolver.builder()
-                .resolver(StandardTags.defaults())
-                .resolver(Placeholder.component("prefix", this.prefix))
-                .resolver(Placeholder.component("fKey", this.fKey))
-                .resolver(Placeholder.component("header", this.lbHeader))
-                .resolver(Placeholder.parsed("ac2", "<" + messageColor + ">"))
-                .resolver(Placeholder.parsed("ac", "<" + accentColor + ">"))
-                .resolver(Placeholder.parsed("ac2", "<" + accentColor2 + ">"))
-                .resolver(Placeholder.parsed("ec", "<" + errorColor + ">"))
-                .build())
-            .build();
+    private MiniMessage mmsg;
 
     private boolean noData(String targetName) { //Checks if the given target has any data stored and if they have played before.
         OfflinePlayer target = Bukkit.getOfflinePlayer(targetName);
@@ -124,6 +113,19 @@ public final class PressF extends JavaPlugin {
                 });
             }
         } //end PL Hook
+
+        mmsg = MiniMessage.builder()
+                .tags(TagResolver.builder()
+                        .resolver(StandardTags.defaults())
+                        .resolver(Placeholder.component("prefix", this.prefix))
+                        .resolver(Placeholder.component("fKey", this.fKey))
+                        .resolver(Placeholder.component("header", this.lbHeader))
+                        .resolver(Placeholder.parsed("ac2", "<" + messageColor + ">"))
+                        .resolver(Placeholder.parsed("ac", "<" + accentColor + ">"))
+                        .resolver(Placeholder.parsed("ac2", "<" + accentColor2 + ">"))
+                        .resolver(Placeholder.parsed("ec", "<" + errorColor + ">"))
+                        .build())
+                .build();
     }
 
     @Override
