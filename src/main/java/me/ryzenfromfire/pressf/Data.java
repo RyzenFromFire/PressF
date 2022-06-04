@@ -1,9 +1,6 @@
 package me.ryzenfromfire.pressf;
 
-import net.kyori.adventure.text.Component;
-import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.Map;
@@ -30,11 +27,11 @@ public class Data {
         }
 
         fCountYml = YamlConfiguration.loadConfiguration(fCountFile);
-        //for each line in the config file, load the key and value into the argument hashmap
+        // for each line in the config file, load the key and value into the argument hashmap
         for (String idString : fCountYml.getKeys(false)) {
             Integer fCount = (Integer) fCountYml.get(idString);
             if (fCount == null) {
-                fCount = -1; //for now just set it to -1 to represent error
+                fCount = -1; // for now just set it to -1 to represent error
             }
             UUID uuid = UUID.fromString(idString);
 

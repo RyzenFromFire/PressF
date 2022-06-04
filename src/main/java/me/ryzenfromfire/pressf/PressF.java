@@ -43,13 +43,13 @@ public final class PressF extends JavaPlugin {
 
     private MiniMessage mmsg;
 
-    private boolean noData(String targetName) { //Checks if the given target has any data stored and if they have played before.
+    private boolean noData(String targetName) { // Checks if the given target has any data stored and if they have played before.
         OfflinePlayer target = Bukkit.getOfflinePlayer(targetName);
         if (fCount.get(target.getUniqueId()) == null) {
-            if (target.hasPlayedBefore()) { //player has played before but has never been interacted with
+            if (target.hasPlayedBefore()) { // player has played before but has never been interacted with
                 fCount.putIfAbsent(target.getUniqueId(), 0);
                 return false;
-            } else { //player has not played before and has no data
+            } else { // player has not played before and has no data
                 return true;
             }
         }
@@ -138,77 +138,77 @@ public final class PressF extends JavaPlugin {
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
-        //Global Command Components
+        // Global Command Components
         Component invalidTarget = mmsg.deserialize("<prefix> <ec>Error: Invalid target. Please provide the name of a valid player.");
 
         //
         //   PRESSF
         //
-        if (command.getName().equals("pressf") && sender instanceof Player) { //PLAYER
+        if (command.getName().equals("pressf") && sender instanceof Player) { // PLAYER
             Player player = (Player) sender, lastDeath = events.getLastDeath(), lastMessenger = events.getLastMessenger();
 
             long lastMessageTime = events.getLastMessageTime(), lastDeathTime = events.getLastDeathTime();
 
-            //check if player is on cooldown
-            //first check if player has a cooldown, if not, init to 0
+            // check if player is on cooldown
+            // first check if player has a cooldown, if not, init to 0
             if (!cooldownManager.exists(player.getUniqueId())) { cooldownManager.setCooldown(player.getUniqueId(), 0L); }
 
-            //time in ms since command used
+            // time in ms since command used
             long timeSince = System.currentTimeMillis() - cooldownManager.getCooldown(player.getUniqueId());
 
-            //is player on cooldown?
+            // is player on cooldown?
             if (TimeUnit.MILLISECONDS.toSeconds(timeSince) < configLoader.getCooldown()) {
-                //time since command used is less than cooldown, command on cooldown
+                // time since command used is less than cooldown, command on cooldown
                 Component onCooldown = mmsg.deserialize("<prefix> <ec>You cannot press <f_key> <ec>for another <ac><time> <ec>seconds.",
-                        Placeholder.parsed("time", String.valueOf(configLoader.getCooldown() - TimeUnit.MILLISECONDS.toSeconds(timeSince)))); //convert timeSince to time left to use
+                        Placeholder.parsed("time", String.valueOf(configLoader.getCooldown() - TimeUnit.MILLISECONDS.toSeconds(timeSince)))); // convert timeSince to time left to use
                 player.sendMessage(onCooldown);
                 return true;
-            } //otherwise continue
+            } // otherwise continue
 
-            //target assignment (who is receiving the F)
+            // target assignment (who is receiving the F)
             UUID targetId;
             String targetName;
             if (args.length != 0) {
-                //if argument is given, find the player based on passed string username
+                // if argument is given, find the player based on passed string username
 
-                //check for data
+                // check for data
                 if (noData(args[0])) {
                     player.sendMessage(invalidTarget);
                     return true;
                 }
 
-                //set target
+                // set target
                 targetId = Bukkit.getOfflinePlayer(args[0]).getUniqueId();
                 targetName = Bukkit.getOfflinePlayer(args[0]).getName();
 
-            } else if (lastDeath != null && lastDeathTime > lastMessageTime) { //verify validity and more recent than last message
-                //check data
+            } else if (lastDeath != null && lastDeathTime > lastMessageTime) { // verify validity and more recent than last message
+                // check data
                 if (noData(lastDeath.getName())) {
                     player.sendMessage(invalidTarget);
                     return true;
                 }
 
-                //set target
+                // set target
                 targetId = lastDeath.getUniqueId();
                 targetName = lastDeath.getName();
 
-            } else if (lastMessenger != null && lastMessageTime > lastDeathTime) { //verify validity and more recent than last death
-                //if not set target to last person to send a message
+            } else if (lastMessenger != null && lastMessageTime > lastDeathTime) { // verify validity and more recent than last death
+                // if not set target to last person to send a message
 
-                //check data
+                // check data
                 if (noData(lastMessenger.getName())) {
                     player.sendMessage(invalidTarget);
                     return true;
                 }
 
-                //set target
+                // set target
                 targetId = lastMessenger.getUniqueId();
                 targetName = lastMessenger.getName();
             } else {
-                //if not set target to the command sender
-                //should only happen if there has not yet been a message sent
+                // if not set target to the command sender
+                // should only happen if there has not yet been a message sent
 
-                //check data
+                // check data
                 fCount.putIfAbsent(player.getUniqueId(), 0);
 
                 //set target
@@ -216,25 +216,25 @@ public final class PressF extends JavaPlugin {
                 targetName = player.getName();
             }
 
-            //increment target's fCount
+            // increment target's fCount
             fCount.put(targetId, fCount.get(targetId) + 1);
 
-            //set cooldown
+            // set cooldown
             cooldownManager.setCooldown(player.getUniqueId(), System.currentTimeMillis());
 
-            //if player clicked the F in chat
-            //hover message will run "/pressf <target> false
+            // if player clicked the F in chat
+            // hover message will run "/pressf <target> false
             if (args.length > 1) {
                 if (args[1].equals("false")) {
-                    //send message just to player
-                    //should only trigger from clicking a global message
+                    // send message just to player
+                    // should only trigger from clicking a global message
                     if (targetName.equals(player.getName())) { targetName = "yourself"; }
                     Component pressedF = mmsg.deserialize("<prefix> <mc>You pressed <f_key> <mc>to pay respects to <ac><target><mc>.",
                             Placeholder.parsed("target", targetName));
                     player.sendMessage(pressedF);
                 }
             } else {
-                //send global server message of the pressed F
+                // send global server message of the pressed F
                 String actualTargetName = targetName;
                 if (targetName.equals(player.getName())) { targetName = "themself"; }
                 Component pressedF = mmsg.deserialize("<hover:show_text:'<mc>Click to press <f_key> for <ac><a_target><mc>!'>" +
@@ -246,7 +246,7 @@ public final class PressF extends JavaPlugin {
                 this.getServer().sendMessage(pressedF);
             }
             return true;
-        } else if (command.getName().equals("pressf") && !(sender instanceof Player)) { //CONSOLE
+        } else if (command.getName().equals("pressf") && !(sender instanceof Player)) { // CONSOLE
             getLogger().info("You cannot press F from the console. F.");
             return true;
         }
@@ -254,57 +254,57 @@ public final class PressF extends JavaPlugin {
         //
         // VIEWF
         //
-        if (command.getName().equals("viewf") && sender instanceof Player) { //PLAYER
+        if (command.getName().equals("viewf") && sender instanceof Player) { // PLAYER
             Player player = (Player) sender;
 
-            //target assignment (who is receiving the F)
+            // target assignment (who is receiving the F)
             UUID targetId;
             String targetName;
-            Component subject; //have correct grammar for message
+            Component subject; // have correct grammar for message
             if (args.length != 0) {
-                //if argument is given, find the player based on passed string username
+                // if argument is given, find the player based on passed string username
 
-                //check for data
+                // check for data
                 if (noData(args[0])) {
                     player.sendMessage(invalidTarget);
                     return true;
                 }
 
-                //set target
+                // set target
                 targetId = Bukkit.getOfflinePlayer(args[0]).getUniqueId();
                 targetName = Bukkit.getOfflinePlayer(args[0]).getName();
 
                 subject = mmsg.deserialize("<mc>" + targetName + " has");
             } else {
-                //if not set target to the command sender
-                //should only happen if there has not yet been a message sent
+                // if not set target to the command sender
+                // should only happen if there has not yet been a message sent
                 targetId = player.getUniqueId();
                 subject = mmsg.deserialize("<mc>You have");
 
-                //if player fCount is null, put 0
+                // if player fCount is null, put 0
                 fCount.putIfAbsent(player.getUniqueId(), 0); // no need to check data here since player is always online
             }
 
-            //send message to player
+            // send message to player
             Component viewF = mmsg.deserialize("<prefix> <subject> <mc>received <ac><count> <f_key><mc>s.",
                     Placeholder.component("subject", subject),
                     Placeholder.parsed("count", String.valueOf(fCount.get(targetId))));
             player.sendMessage(viewF);
 
             return true;
-        } else if (command.getName().equals("viewf") && !(sender instanceof Player)) { //CONSOLE
+        } else if (command.getName().equals("viewf") && !(sender instanceof Player)) { // CONSOLE
             if (args.length == 0) { getLogger().info("You are the console, you don't exist. You can't have an F."); }
             else {
-                //check for data
+                // check for data
                 if (noData(args[0])) {
                     getLogger().info("Error: Invalid target. Please provide the name of a valid player.");
                     return true;
                 }
 
-                //target assignment (who is receiving the F)
+                // target assignment (who is receiving the F)
                 UUID targetId = Bukkit.getOfflinePlayer(args[0]).getUniqueId();
                 
-                //send message to console
+                // send message to console
                 getLogger().info(Bukkit.getOfflinePlayer(args[0]).getName() + " has received " + fCount.get(targetId) + " Fs.");
             }
             return true;
@@ -324,7 +324,7 @@ public final class PressF extends JavaPlugin {
             int page = 0;
             final int maxPages = (int) Math.ceil(leaderboard.size() / entriesPerPage);
 
-            if(args.length > 0) { //determine correct page to view based on argument, and make sure argument is actually a number
+            if(args.length > 0) { // determine correct page to view based on argument, and make sure argument is actually a number
                 int i = Integer.parseInt(args[0]);
                 if (i > 0 && i <= maxPages) {
                     page = i - 1;
@@ -332,17 +332,17 @@ public final class PressF extends JavaPlugin {
             }
 
             StringBuilder output = new StringBuilder();
-            List<UUID> indexList = new ArrayList<>(leaderboard.keySet()); //only for getting indices
-            int startPos = page * (int) entriesPerPage; //number of the first entry on the selected leaderboard page
+            List<UUID> indexList = new ArrayList<>(leaderboard.keySet()); // only for getting indices
+            int startPos = page * (int) entriesPerPage; // number of the first entry on the selected leaderboard page
             int limit = startPos + (int) entriesPerPage;
             if(leaderboard.size() < limit) { limit = leaderboard.size(); }
 
             for(int i = startPos; i < limit; i++) {
-                //Get Key and Value
+                // Get Key and Value
                 UUID k = indexList.get(i);
                 Integer v = leaderboard.get(k);
 
-                //Construct entries for the appropriate page
+                // Construct entries for the appropriate page
                 output.append("<ac2>").append(i + 1).append(". <mc>")
                     .append(getServer().getOfflinePlayer(k).getName())
                     .append(": <ac>").append(v);
@@ -396,7 +396,7 @@ public final class PressF extends JavaPlugin {
                         configLoader.reloadConfig();
                         getComponents();
 
-                        //send message reloading is complete.
+                        // send message reloading is complete.
                         if (sender instanceof Player) {
                             Player player = (Player) sender;
                             player.sendMessage(mmsg.deserialize("<prefix> <reload>", Placeholder.component("reload", reloadingMsg)));
@@ -408,7 +408,7 @@ public final class PressF extends JavaPlugin {
                     case "load" -> {
                         data.load(fCount);
 
-                        //send message loading data is complete
+                        // send message loading data is complete
                         if (sender instanceof Player) {
                             Player player = (Player) sender;
                             player.sendMessage(mmsg.deserialize("<prefix> <loaded>", Placeholder.component("loaded", loaded)));
@@ -420,7 +420,7 @@ public final class PressF extends JavaPlugin {
                     case "save" -> {
                         data.save(fCount);
 
-                        //send message saving data is complete
+                        // send message saving data is complete
                         if (sender instanceof Player) {
                             Player player = (Player) sender;
                             player.sendMessage(mmsg.deserialize("<prefix> <saved>", Placeholder.component("saved", saved)));
