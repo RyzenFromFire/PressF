@@ -39,7 +39,6 @@ public final class PressF extends JavaPlugin {
         return fCount;
     }
     public Boolean protocolLibHook = false;
-    private ProtocolManager protocolManager;
 
     private MiniMessage mmsg;
 
@@ -68,8 +67,6 @@ public final class PressF extends JavaPlugin {
 
     public ConfigLoader getConfigLoader() { return configLoader; }
 
-    public ProtocolManager getProtocolManager() { return protocolManager; }
-
     @Override
     public void onEnable() {
         // Plugin startup logic
@@ -81,15 +78,27 @@ public final class PressF extends JavaPlugin {
         getComponents();
         this.data = new Data(this);
         data.load(fCount);
-        if (getServer().getPluginManager().getPlugin("ProtocolLib") != null) {
-            protocolLibHook = true;
-            protocolManager = ProtocolLibrary.getProtocolManager();
-            getLogger().info("Hooked into ProtocolLib.");
-        } else {
+
+        mmsg = MiniMessage.builder()
+                .tags(TagResolver.builder()
+                        .resolver(StandardTags.defaults())
+                        .resolver(Placeholder.component("prefix", this.prefix))
+                        .resolver(Placeholder.component("f_key", this.fKey))
+                        .resolver(Placeholder.component("header", this.lbHeader))
+                        .resolver(Placeholder.parsed("mc", messageColor))
+                        .resolver(Placeholder.parsed("ac", accentColor))
+                        .resolver(Placeholder.parsed("ac2", accentColor2))
+                        .resolver(Placeholder.parsed("ec", errorColor))
+                        .build())
+                .build();
+
+        // ProtocolLib Hook (Optional)
+        if (getServer().getPluginManager().getPlugin("ProtocolLib") == null) {
             getLogger().info("ProtocolLib not found.");
-        }
-        if (protocolLibHook) {
-            ProtocolManager protocolManager = getProtocolManager();
+        } else {
+            protocolLibHook = true;
+            ProtocolManager protocolManager = ProtocolLibrary.getProtocolManager();
+            getLogger().info("Hooked into ProtocolLib.");
             if (protocolManager == null) {
                 getLogger().severe("ERROR: ProtocolLib Hook failed (null).");
             } else {
@@ -112,20 +121,7 @@ public final class PressF extends JavaPlugin {
                     }
                 });
             }
-        } //end PL Hook
-
-        mmsg = MiniMessage.builder()
-                .tags(TagResolver.builder()
-                        .resolver(StandardTags.defaults())
-                        .resolver(Placeholder.component("prefix", this.prefix))
-                        .resolver(Placeholder.component("f_key", this.fKey))
-                        .resolver(Placeholder.component("header", this.lbHeader))
-                        .resolver(Placeholder.parsed("mc", messageColor))
-                        .resolver(Placeholder.parsed("ac", accentColor))
-                        .resolver(Placeholder.parsed("ac2", accentColor2))
-                        .resolver(Placeholder.parsed("ec", errorColor))
-                        .build())
-                .build();
+        } // end PL Hook
     }
 
     @Override
