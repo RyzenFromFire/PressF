@@ -1,7 +1,7 @@
 package me.ryzenfromfire.pressf;
 
 import io.papermc.paper.event.player.AsyncChatEvent;
-import net.kyori.adventure.text.serializer.plain.PlainComponentSerializer;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.entity.Player;
@@ -23,12 +23,12 @@ public class Events implements Listener {
     @EventHandler
     public void onChat(AsyncChatEvent event) {
         if (!(plugin.protocolLibHook)) {
-            if (replaceF && PlainComponentSerializer.plain().serialize(event.message()).equalsIgnoreCase("F")) {
-                //if enabled and chat message is only an "F", replace
+            if (replaceF && PlainTextComponentSerializer.plainText().serialize(event.message()).equalsIgnoreCase("F")) {
+                // if enabled and chat message is only an "F", replace
                 event.setCancelled(true);
                 Bukkit.getScheduler().runTask( this.plugin, () -> Bukkit.dispatchCommand(event.getPlayer(), "pressf"));
-            } else if (!event.isCancelled()) { //should prevent recording if the message was cancelled in another way
-                //otherwise treat as normal chat message and record player and time
+            } else if (!event.isCancelled()) { // should prevent recording if the message was cancelled in another way
+                // otherwise treat as normal chat message and record player and time
                 lastMessenger = event.getPlayer();
                 lastMessageTime = System.currentTimeMillis();
             }
