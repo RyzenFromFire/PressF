@@ -1,12 +1,6 @@
 package me.ryzenfromfire.pressf;
 
-import com.comphenix.protocol.PacketType;
-import com.comphenix.protocol.ProtocolLibrary;
-import com.comphenix.protocol.ProtocolManager;
-import com.comphenix.protocol.events.ListenerPriority;
-import com.comphenix.protocol.events.PacketAdapter;
-import com.comphenix.protocol.events.PacketContainer;
-import com.comphenix.protocol.events.PacketEvent;
+import me.ryzenfromfire.pressf.hooks.ProtocolLibCompat;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
@@ -65,7 +59,9 @@ public final class PressF extends JavaPlugin {
         errorColor = configLoader.getColor(ConfigLoader.colorType.error);
     }
 
-    public ConfigLoader getConfigLoader() { return configLoader; }
+    public ConfigLoader getConfigLoader() { return this.configLoader; }
+
+    public Events getEvents() { return this.events; }
 
     @Override
     public void onEnable() {
@@ -97,30 +93,8 @@ public final class PressF extends JavaPlugin {
             getLogger().info("ProtocolLib not found.");
         } else {
             protocolLibHook = true;
-            ProtocolManager protocolManager = ProtocolLibrary.getProtocolManager();
-            getLogger().info("Hooked into ProtocolLib.");
-            if (protocolManager == null) {
-                getLogger().severe("ERROR: ProtocolLib Hook failed (null).");
-            } else {
-                protocolManager.addPacketListener(new PacketAdapter(this,
-                        ListenerPriority.NORMAL,
-                        PacketType.Play.Client.CHAT) {
-                    @Override
-                    public void onPacketReceiving(PacketEvent event) {
-                        if (event.getPacketType() == PacketType.Play.Client.CHAT) {
-                            PacketContainer packet = event.getPacket();
-                            String message = packet.getStrings().read(0);
-                            if (message.equalsIgnoreCase("F")) {
-                                event.setCancelled(true);
-                                Bukkit.getScheduler().runTask(this.plugin, () -> Bukkit.dispatchCommand(event.getPlayer(), "pressf"));
-                            } else {
-                                events.setLastMessenger(event.getPlayer());
-                                events.setLastMessageTime(System.currentTimeMillis());
-                            }
-                        }
-                    }
-                });
-            }
+            ProtocolLibCompat p = new ProtocolLibCompat(this);
+            p.enableProtocolLibHook();
         } // end PL Hook
     }
 

@@ -3,8 +3,6 @@ package me.ryzenfromfire.pressf;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.configuration.file.FileConfiguration;
-
-import java.io.File;
 import java.util.Objects;
 
 
@@ -57,18 +55,12 @@ public class ConfigLoader {
     }
 
     public String getColor(colorType type) {
-        switch(type) {
-            case message:
-                return this.messageColor;
-            case accent:
-                return this.accentColor;
-            case accent2:
-                return this.accentColor2;
-            case error:
-                return this.errorColor;
-            default:
-                return "";
-        }
+        return switch (type) {
+            case message -> this.messageColor;
+            case accent -> this.accentColor;
+            case accent2 -> this.accentColor2;
+            case error -> this.errorColor;
+        };
     }
 
     public long getCooldown() { return this.cooldown; }
