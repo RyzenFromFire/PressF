@@ -2,7 +2,7 @@
 
 # Message Components
 # Uses MiniMessage format and tags
-# https://github.com/KyoriPowered/adventure-text-minimessage
+# https://docs.adventure.kyori.net/minimessage/format.html
 
 # Customize the prefix shown with commands in chat
 prefix: "<#2e2d2b>[<#a4c0db>PressF<#2e2d2b>]<reset>"

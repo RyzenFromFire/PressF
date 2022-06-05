@@ -33,9 +33,9 @@ public class ProtocolLibCompat {
                     if (event.getPacketType() == PacketType.Play.Client.CHAT) {
                         PacketContainer packet = event.getPacket();
                         String message = packet.getStrings().read(0);
-                        if (message.equalsIgnoreCase("F")) {
+                        if (events.doReplaceF() && message.equalsIgnoreCase("F")) {
                             event.setCancelled(true);
-                            Bukkit.getScheduler().runTask(this.plugin, () -> Bukkit.dispatchCommand(event.getPlayer(), "pressf"));
+                            Bukkit.getScheduler().runTask(this.plugin, () -> Bukkit.dispatchCommand(event.getPlayer(), "pressf !silentFreplace false"));
                         } else {
                             events.setLastMessenger(event.getPlayer());
                             events.setLastMessageTime(System.currentTimeMillis());

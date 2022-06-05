@@ -36,10 +36,12 @@ public final class PressF extends JavaPlugin {
 
     private MiniMessage mmsg;
 
+    private String lastTargetName;
+
     private boolean noData(String targetName) { // Checks if the given target has any data stored and if they have played before.
         OfflinePlayer target = Bukkit.getOfflinePlayer(targetName);
         if (fCount.get(target.getUniqueId()) == null) {
-            if (target.hasPlayedBefore()) { // player has played before but has never been interacted with
+            if (target.hasPlayedBefore() || target.isOnline()) { // player has played before but has never been interacted with
                 fCount.putIfAbsent(target.getUniqueId(), 0);
                 return false;
             } else { // player has not played before and has no data
@@ -139,8 +141,10 @@ public final class PressF extends JavaPlugin {
             // target assignment (who is receiving the F)
             UUID targetId;
             String targetName;
-            if (args.length != 0) {
+            if (args.length != 0 && !args[0].equals("!silentFreplace")) {
                 // if argument is given, find the player based on passed string username
+                // special tag option in case of F replacement. this should be silent, uses second arg -> false
+                // don't want to target a specific user in that case
 
                 // check for data
                 if (noData(args[0])) {
@@ -193,17 +197,24 @@ public final class PressF extends JavaPlugin {
             // set cooldown
             cooldownManager.setCooldown(player.getUniqueId(), System.currentTimeMillis());
 
+            if (!targetName.equals(lastTargetName)) { // if there is a new target
+                lastTargetName = targetName;
+                if (args.length > 1) {
+                    args[1] = "true";
+                    // basically forces the global message to display on F replacement if the target changed
+                    // i.e. show the global message only the first time someone presses F for them
+                }
+            }
+
             // if player clicked the F in chat
             // hover message will run "/pressf <target> false
-            if (args.length > 1) {
-                if (args[1].equals("false")) {
-                    // send message just to player
-                    // should only trigger from clicking a global message
-                    if (targetName.equals(player.getName())) { targetName = "yourself"; }
-                    Component pressedF = mmsg.deserialize("<prefix> <mc>You pressed <f_key> <mc>to pay respects to <ac><target><mc>.",
-                            Placeholder.parsed("target", targetName));
-                    player.sendMessage(pressedF);
-                }
+            if (args.length > 1 && args[1].equals("false")) {
+                // send message just to player
+                // should only trigger from clicking a global message
+                if (targetName.equals(player.getName())) { targetName = "yourself"; }
+                Component pressedF = mmsg.deserialize("<prefix> <mc>You pressed <f_key> <mc>to pay respects to <ac><target><mc>.",
+                        Placeholder.parsed("target", targetName));
+                player.sendMessage(pressedF);
             } else {
                 // send global server message of the pressed F
                 String actualTargetName = targetName;
@@ -248,7 +259,6 @@ public final class PressF extends JavaPlugin {
                 subject = mmsg.deserialize("<mc>" + targetName + " has");
             } else {
                 // if not set target to the command sender
-                // should only happen if there has not yet been a message sent
                 targetId = player.getUniqueId();
                 subject = mmsg.deserialize("<mc>You have");
 
@@ -353,55 +363,35 @@ public final class PressF extends JavaPlugin {
             Component saved = mmsg.deserialize("<mc>Saved data to file.");
             Component loaded = mmsg.deserialize("<mc>Loaded data from file.");
 
-            if (args.length == 0) {
-                if (sender instanceof Player) {
-                    Player player = (Player) sender;
-                    player.sendMessage(mmsg.deserialize("<prefix> <usage>", Placeholder.component("usage", usage)));
-                } else {
-                    getLogger().info(PlainTextComponentSerializer.plainText().serialize(usage));
-                }
-                return true;
-            } else {
+            Component selectedMsg = usage; // if no arguments provided, select usage/help message
+
+            // if arguments provided, determine what action to take and select the appropriate message.
+            if (args.length != 0) {
                 switch (args[0]) {
                     case "reload" -> {
                         configLoader.reloadConfig();
                         getComponents();
-
-                        // send message reloading is complete.
-                        if (sender instanceof Player) {
-                            Player player = (Player) sender;
-                            player.sendMessage(mmsg.deserialize("<prefix> <reload>", Placeholder.component("reload", reloadingMsg)));
-                        } else {
-                            getLogger().info(PlainTextComponentSerializer.plainText().serialize(reloadingMsg));
-                        }
-                        return true;
+                        selectedMsg = reloadingMsg;
                     }
                     case "load" -> {
                         data.load(fCount);
-
-                        // send message loading data is complete
-                        if (sender instanceof Player) {
-                            Player player = (Player) sender;
-                            player.sendMessage(mmsg.deserialize("<prefix> <loaded>", Placeholder.component("loaded", loaded)));
-                        } else {
-                            getLogger().info(PlainTextComponentSerializer.plainText().serialize(loaded));
-                        }
-                        return true;
+                        selectedMsg = loaded;
                     }
                     case "save" -> {
                         data.save(fCount);
-
-                        // send message saving data is complete
-                        if (sender instanceof Player) {
-                            Player player = (Player) sender;
-                            player.sendMessage(mmsg.deserialize("<prefix> <saved>", Placeholder.component("saved", saved)));
-                        } else {
-                            getLogger().info(PlainTextComponentSerializer.plainText().serialize(saved));
-                        }
-                        return true;
+                        selectedMsg = saved;
                     }
                 }
             }
+
+            // send appropriate message to correct audience
+            if (sender instanceof Player) {
+                Player player = (Player) sender;
+                player.sendMessage(mmsg.deserialize("<prefix> <msg>", Placeholder.component("msg", selectedMsg)));
+            } else {
+                getLogger().info(PlainTextComponentSerializer.plainText().serialize(selectedMsg));
+            }
+            return true;
         }
 
         return false;

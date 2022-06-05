@@ -26,7 +26,7 @@ public class Events implements Listener {
             if (replaceF && PlainTextComponentSerializer.plainText().serialize(event.message()).equalsIgnoreCase("F")) {
                 // if enabled and chat message is only an "F", replace
                 event.setCancelled(true);
-                Bukkit.getScheduler().runTask( this.plugin, () -> Bukkit.dispatchCommand(event.getPlayer(), "pressf"));
+                Bukkit.getScheduler().runTask( this.plugin, () -> Bukkit.dispatchCommand(event.getPlayer(), "pressf !silentFreplace false"));
             } else if (!event.isCancelled()) { // should prevent recording if the message was cancelled in another way
                 // otherwise treat as normal chat message and record player and time
                 lastMessenger = event.getPlayer();
@@ -52,4 +52,6 @@ public class Events implements Listener {
     public void setLastMessenger(Player player) { lastMessenger = player; }
 
     public void setLastMessageTime(long time) { lastMessageTime = time; }
+
+    public boolean doReplaceF() { return replaceF; }
 }
