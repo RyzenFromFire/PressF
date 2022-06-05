@@ -92,10 +92,11 @@ public final class PressF extends JavaPlugin {
         if (getServer().getPluginManager().getPlugin("ProtocolLib") == null) {
             getLogger().info("ProtocolLib not found.");
         } else {
+            getLogger().info("Hooked into ProtocolLib.");
             protocolLibHook = true;
             ProtocolLibCompat p = new ProtocolLibCompat(this);
             p.enableProtocolLibHook();
-        } // end PL Hook
+        }
     }
 
     @Override

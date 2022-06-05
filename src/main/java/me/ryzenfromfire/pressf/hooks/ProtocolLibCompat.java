@@ -12,8 +12,8 @@ import me.ryzenfromfire.pressf.PressF;
 import org.bukkit.Bukkit;
 
 public class ProtocolLibCompat {
-    private PressF plugin;
-    private Events events;
+    private final PressF plugin;
+    private final Events events;
 
     public ProtocolLibCompat(PressF plugin) {
         this.plugin = plugin;
@@ -22,7 +22,6 @@ public class ProtocolLibCompat {
 
     public void enableProtocolLibHook() {
         ProtocolManager protocolManager = ProtocolLibrary.getProtocolManager();
-        plugin.getLogger().info("Hooked into ProtocolLib.");
         if (protocolManager == null) {
             plugin.getLogger().severe("ERROR: ProtocolLib Hook failed (null).");
         } else {
