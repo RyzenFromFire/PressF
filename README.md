@@ -12,3 +12,5 @@ Compatibility:
 - ProtocolLib (built against v4.8.0)
 
 Versions before v2.0.0 were built against Paper 1.16.5, Adventure 4.1.0, and ProtocolLib 4.6.0.
+
+[SpigotMC Page](https://www.spigotmc.org/resources/pressf.102450/)
